@@ -1,21 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
+import { signIn } from '../utils/googleAuth';
+import { AuthUser } from '../utils/auth';
 
 interface LoginScreenProps {
-  onLogin: () => void;
+  onLogin: (user: AuthUser) => void;
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
-  const handleGoogleSignIn = () => {
-    // TODO: Implement Google Sign-In
-    console.log('Google Sign-In pressed');
-    onLogin(); // For now, just call onLogin to simulate successful login
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    console.log('Starting Google Sign-In...');
+    setIsLoading(true);
+    try {
+      const user = await signIn();
+      console.log('Google Sign-In successful:', user);
+      onLogin(user);
+    } catch (error: any) {
+      console.error('Google Sign-In error:', error);
+      
+      if (error.message === 'Sign in was cancelled') {
+        console.log('User cancelled sign-in - staying on login screen');
+        return; // This should prevent onLogin from being called
+      }
+      
+      const errorMessage = error.message || 'An unexpected error occurred during sign-in';
+      console.log('Showing error alert:', errorMessage);
+      Alert.alert('Sign In Error', errorMessage);
+    } finally {
+      console.log('Setting loading to false');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -23,9 +47,16 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       <View style={styles.content}>
         <Text style={styles.title}>Lemon Challenge</Text>
         <Text style={styles.subtitle}>Welcome to your crypto app</Text>
-        
-        <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignIn}>
-          <Text style={styles.googleButtonText}>Sign in with Google</Text>
+        <TouchableOpacity
+          style={[styles.googleButton, isLoading && styles.googleButtonDisabled]}
+          onPress={handleGoogleSignIn}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="white" size="small" />
+          ) : (
+            <Text style={styles.googleButtonText}>Sign in with Google</Text>
+          )}
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -67,6 +98,9 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+  },
+  googleButtonDisabled: {
+    opacity: 0.6,
   },
 });
 
