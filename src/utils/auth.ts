@@ -17,7 +17,6 @@ export interface AuthSession {
 
 const AUTH_SESSION_KEY = '@auth_session';
 
-// Store authentication session
 export const storeAuthSession = async (user: AuthUser, idToken: string): Promise<void> => {
   try {
     const session: AuthSession = {
@@ -34,7 +33,7 @@ export const storeAuthSession = async (user: AuthUser, idToken: string): Promise
   }
 };
 
-// Get stored authentication session
+
 export const getAuthSession = async (): Promise<AuthSession | null> => {
   try {
     const sessionData = await AsyncStorage.getItem(AUTH_SESSION_KEY);
@@ -44,7 +43,6 @@ export const getAuthSession = async (): Promise<AuthSession | null> => {
 
     const session: AuthSession = JSON.parse(sessionData);
     
-    // Check if session has expired
     if (Date.now() > session.expiresAt) {
       console.log('Auth session expired, removing...');
       await removeAuthSession();
@@ -58,7 +56,6 @@ export const getAuthSession = async (): Promise<AuthSession | null> => {
   }
 };
 
-// Remove authentication session
 export const removeAuthSession = async (): Promise<void> => {
   try {
     await AsyncStorage.removeItem(AUTH_SESSION_KEY);
@@ -69,25 +66,21 @@ export const removeAuthSession = async (): Promise<void> => {
   }
 };
 
-// Check if user is authenticated
 export const isAuthenticated = async (): Promise<boolean> => {
   const session = await getAuthSession();
   return session !== null;
 };
 
-// Get current user
 export const getCurrentAuthUser = async (): Promise<AuthUser | null> => {
   const session = await getAuthSession();
   return session?.user || null;
 };
 
-// Get current ID token
 export const getCurrentIdToken = async (): Promise<string | null> => {
   const session = await getAuthSession();
   return session?.idToken || null;
 };
 
-// Refresh session (extend expiration)
 export const refreshAuthSession = async (): Promise<void> => {
   const session = await getAuthSession();
   if (session) {

@@ -8,13 +8,15 @@ import LoginScreen from '../screens/LoginScreen';
 import CryptoListScreen from '../screens/CryptoListScreen';
 import ExchangeScreen from '../screens/ExchangeScreen';
 import ScannerScreen from '../screens/ScannerScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+import LoadingScreen from '../components/LoadingScreen';
 import { getCurrentUser, signOut } from '../utils/googleAuth';
 import { getCurrentAuthUser, removeAuthSession, AuthUser } from '../utils/auth';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
+const MainTabs = ({ user, onLogout }: { user: AuthUser; onLogout: () => void }) => {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -25,12 +27,11 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
     >
       <Tab.Screen 
         name="CryptoList" 
+        component={CryptoListScreen}
         options={{
           title: 'Crypto List',
         }}
-      >
-        {(props) => <CryptoListScreen {...props} onLogout={onLogout} />}
-      </Tab.Screen>
+      />
       <Tab.Screen 
         name="Exchange" 
         component={ExchangeScreen}
@@ -45,16 +46,23 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
           title: 'Scanner',
         }}
       />
+      <Tab.Screen 
+        name="Profile" 
+        options={{
+          title: 'Profile',
+        }}
+      >
+        {(props) => <ProfileScreen {...props} user={user} onLogout={onLogout} />}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 };
 
 const AppNavigator = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [_user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check for existing user session on app start
   useEffect(() => {
     checkExistingUser();
   }, []);
@@ -124,7 +132,7 @@ const AppNavigator = () => {
   };
 
   if (isLoading) {
-    return null; // TODO: Add loading screen
+    return <LoadingScreen message="Checking authentication..." />;
   }
 
   return (
@@ -136,7 +144,7 @@ const AppNavigator = () => {
           </Stack.Screen>
         ) : (
           <Stack.Screen name="MainApp">
-            {(props) => <MainTabs {...props} onLogout={handleLogout} />}
+            {(props) => <MainTabs {...props} user={user!} onLogout={handleLogout} />}
           </Stack.Screen>
         )}
       </Stack.Navigator>

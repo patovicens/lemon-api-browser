@@ -1,20 +1,6 @@
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { storeAuthSession, removeAuthSession, AuthUser } from './auth';
 
-export interface GoogleUser {
-  idToken: string | null;
-  serverAuthCode: string | null;
-  scopes: string[];
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    photo: string | null;
-    familyName: string;
-    givenName: string;
-  };
-}
-
 export const configureGoogleSignIn = () => {
   GoogleSignin.configure({
     webClientId: '555057284072-9a6ki7sf5pgpikka3kaft4f2upgsi8fj.apps.googleusercontent.com',
@@ -40,9 +26,7 @@ export const signIn = async (): Promise<AuthUser> => {
     
     console.log('Sign-in successful, userInfo:', userInfo);
     
-    // Cast to our expected type and store the authentication session
-    const googleUser = userInfo as unknown as GoogleUser;
-    
+    // Handle the nested data structure
     if (userInfo.data && userInfo.data.idToken) {
       const authUser: AuthUser = {
         id: userInfo.data.user.id,
@@ -54,19 +38,6 @@ export const signIn = async (): Promise<AuthUser> => {
       };
       
       await storeAuthSession(authUser, userInfo.data.idToken);
-      return authUser;
-    } else if (googleUser.idToken) {
-      // Fallback to the old structure
-      const authUser: AuthUser = {
-        id: googleUser.user.id,
-        name: googleUser.user.name || '',
-        email: googleUser.user.email || '',
-        photo: googleUser.user.photo || null,
-        familyName: googleUser.user.familyName || '',
-        givenName: googleUser.user.givenName || '',
-      };
-      
-      await storeAuthSession(authUser, googleUser.idToken);
       return authUser;
     } else {
       throw new Error('No ID token received from Google Sign-In');
@@ -119,16 +90,16 @@ export const getCurrentUser = async (): Promise<AuthUser | null> => {
     const currentUser = await GoogleSignin.getCurrentUser();
     if (currentUser && currentUser.idToken) {
       console.log('Found Google current user, storing session...');
-      const googleAuthUser = {
+      const googleAuthUser: AuthUser = {
         id: currentUser.user.id,
         name: currentUser.user.name || '',
         email: currentUser.user.email || '',
-        photo: currentUser.user.photo || '',
+        photo: currentUser.user.photo || null,
         familyName: currentUser.user.familyName || '',
         givenName: currentUser.user.givenName || '',
       };
       
-      await storeAuthSession(googleAuthUser, currentUser.idToken!);
+      await storeAuthSession(googleAuthUser, currentUser.idToken);
       return googleAuthUser;
     }
     
