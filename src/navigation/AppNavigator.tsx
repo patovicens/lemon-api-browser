@@ -17,6 +17,7 @@ import ScannerScreen from '../screens/ScannerScreen';
 
 import LoadingScreen from '../components/LoadingScreen';
 import { useAuth } from '../contexts/AuthContext';
+import { colors } from '../theme';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -41,12 +42,12 @@ const MainTabs = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#4285F4',
-        tabBarInactiveTintColor: '#666',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: 'white',
+          backgroundColor: colors.surface,
           borderTopWidth: 1,
-          borderTopColor: '#e0e0e0',
+          borderTopColor: colors.border,
           paddingBottom: 20,
           paddingTop: 5,
           height: 80,

@@ -7,7 +7,6 @@ import {
   RefreshControl,
   Alert,
   TouchableOpacity,
-  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCryptoInfiniteList, useCryptoSearch } from '../hooks/useCryptoData';
@@ -15,16 +14,13 @@ import CryptoListItem from '../components/CryptoListItem';
 import { CryptoCurrency } from '../types/crypto';
 import LoadingScreen from '../components/LoadingScreen';
 import MyStatusBar from '../components/MyStatusBar';
+import HomeHeader from '../components/HomeHeader';
 import { colors } from '../theme';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faUser, faRotate, faGear } from '@fortawesome/free-solid-svg-icons';
-import { useAuth } from '../contexts/AuthContext';
 
 const CryptoListScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const { user, handleLogout } = useAuth();
   
   const {
     data,
@@ -38,7 +34,7 @@ const CryptoListScreen: React.FC = () => {
   } = useCryptoInfiniteList({
     vs_currency: 'usd',
     order: 'market_cap_desc',
-    per_page: 10,
+    per_page: 15,
   });
 
   useEffect(() => {
@@ -59,17 +55,23 @@ const CryptoListScreen: React.FC = () => {
   const displayList = debouncedQuery.trim() ? (searchResults || []) : cryptoList;
 
   const handleRefresh = async () => {
+    console.log('handleRefresh called, refreshing:', refreshing, 'isFetching:', isFetching);
     if (refreshing || isFetching) {
+      console.log('Refresh already in progress, skipping');
       return;
     }
     
     setRefreshing(true);
     try {
+      console.log('Starting refetch...');
+      // Use React Query's built-in refetch - it will handle pagination properly
       await refetch();
+      console.log('Refetch completed');
     } catch (refreshError) {
       console.error('Refresh error:', refreshError);
     } finally {
       setRefreshing(false);
+      console.log('Refresh finished');
     }
   };
 
@@ -167,52 +169,15 @@ const CryptoListScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container} edges={[]} >
       <MyStatusBar backgroundColor="white" barStyle="dark-content" />
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerLeft} onPress={handleLogout}>
-          <FontAwesomeIcon icon={faUser} size={20} color={colors.textPrimary} />
-          <Text style={styles.title}>
-            {user?.email ? `@${user.email.split('@')[0]}` : '@User'}
-          </Text>
-        </TouchableOpacity>
-        
-        <View style={styles.headerRight}>
-          {isFetching && !isLoading && (
-            <Text style={styles.updatingText}>Updating...</Text>
-          )}
-          <TouchableOpacity 
-            onPress={handleRefresh} 
-            style={styles.iconButton}
-            disabled={refreshing || isFetching}
-          >
-            <FontAwesomeIcon 
-              icon={faRotate} 
-              size={18} 
-              color={refreshing || isFetching ? colors.textTertiary : colors.textSecondary} 
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => Alert.alert('Settings', 'Settings coming soon!')} style={styles.iconButton}>
-            <FontAwesomeIcon icon={faGear} size={18} color={colors.textSecondary} />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.searchContainer}>
-        <View style={styles.searchInputContainer}>
-          <TextInput
-            style={[styles.searchInput, isSearching && styles.searchInputSearching]}
-            placeholder="Search cryptocurrencies..."
-            placeholderTextColor="#999"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            clearButtonMode={isSearching ? "never" : "while-editing"}
-          />
-          {isSearching && (
-            <View style={styles.searchIndicator}>
-              <Text style={styles.searchIndicatorText}>...</Text>
-            </View>
-          )}
-        </View>
-      </View>
+      <HomeHeader 
+        isFetching={isFetching}
+        isRefreshing={refreshing}
+        onRefresh={handleRefresh}
+        onSearch={setSearchQuery}
+        onSearchSubmit={(query) => {
+          setDebouncedQuery(query);
+        }}
+      />
 
       {error && !cryptoList.length ? (
         renderErrorState()
@@ -258,76 +223,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginLeft: 8,
-  },
-  iconButton: {
-    padding: 8,
-    borderRadius: 8,
-  },
-  updatingText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontStyle: 'italic',
-  },
+
   listContainer: {
   },
-  searchContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  searchInputContainer: {
-    position: 'relative',
-  },
-  searchInput: {
-    height: 40,
-    backgroundColor: colors.searchBackground,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    color: colors.textPrimary,
-  },
-  searchInputSearching: {
-    backgroundColor: colors.searchActive,
-    borderColor: colors.searchBorder,
-    borderWidth: 1,
-  },
-  searchIndicator: {
-    position: 'absolute',
-    right: 12,
-    top: 8,
-  },
-  searchIndicatorText: {
-    fontSize: 16,
-  },
+
   searchingText: {
     fontSize: 14,
     color: colors.textSecondary,

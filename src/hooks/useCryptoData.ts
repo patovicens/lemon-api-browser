@@ -22,7 +22,7 @@ export const useCryptoInfiniteList = (params: CryptoListParams = {}) => {
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.length < (params.per_page || 10)) {
+      if (lastPage.length < (params.per_page || 15)) {
         return undefined;
       }
       return allPages.length + 1;
