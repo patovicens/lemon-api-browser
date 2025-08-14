@@ -2,7 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Alert } from 'react-native';
+import { Alert, StatusBar } from 'react-native';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { 
+  faCoins, 
+  faExchangeAlt, 
+  faQrcode, 
+  faUser 
+} from '@fortawesome/free-solid-svg-icons';
 
 import LoginScreen from '../screens/LoginScreen';
 import CryptoListScreen from '../screens/CryptoListScreen';
@@ -16,6 +23,23 @@ import { getCurrentAuthUser, removeAuthSession, AuthUser } from '../utils/auth';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
+const CryptoListTab = () => <CryptoListScreen />;
+const ExchangeTab = () => <ExchangeScreen />;
+const ScannerTab = () => <ScannerScreen />;
+
+const CryptoListIcon = ({ color, size }: { color: string; size: number }) => (
+  <FontAwesomeIcon icon={faCoins} size={size} color={color} />
+);
+const ExchangeIcon = ({ color, size }: { color: string; size: number }) => (
+  <FontAwesomeIcon icon={faExchangeAlt} size={size} color={color} />
+);
+const ScannerIcon = ({ color, size }: { color: string; size: number }) => (
+  <FontAwesomeIcon icon={faQrcode} size={size} color={color} />
+);
+const ProfileIcon = ({ color, size }: { color: string; size: number }) => (
+  <FontAwesomeIcon icon={faUser} size={size} color={color} />
+);
+
 const MainTabs = ({ user, onLogout }: { user: AuthUser; onLogout: () => void }) => {
   return (
     <Tab.Navigator
@@ -23,36 +47,52 @@ const MainTabs = ({ user, onLogout }: { user: AuthUser; onLogout: () => void }) 
         headerShown: false,
         tabBarActiveTintColor: '#4285F4',
         tabBarInactiveTintColor: '#666',
+        tabBarStyle: {
+          backgroundColor: 'white',
+          borderTopWidth: 1,
+          borderTopColor: '#e0e0e0',
+          paddingBottom: 20,
+          paddingTop: 5,
+          height: 80,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+        },
       }}
     >
       <Tab.Screen 
         name="CryptoList" 
-        component={CryptoListScreen}
+        component={CryptoListTab}
         options={{
           title: 'Crypto List',
+          tabBarIcon: CryptoListIcon,
         }}
       />
       <Tab.Screen 
         name="Exchange" 
-        component={ExchangeScreen}
+        component={ExchangeTab}
         options={{
           title: 'Exchange',
+          tabBarIcon: ExchangeIcon,
         }}
       />
       <Tab.Screen 
         name="Scanner" 
-        component={ScannerScreen}
+        component={ScannerTab}
         options={{
           title: 'Scanner',
+          tabBarIcon: ScannerIcon,
         }}
       />
       <Tab.Screen 
         name="Profile" 
         options={{
           title: 'Profile',
+          tabBarIcon: ProfileIcon,
         }}
       >
-        {(props) => <ProfileScreen {...props} user={user} onLogout={onLogout} />}
+        {() => <ProfileScreen user={user} onLogout={onLogout} />}
       </Tab.Screen>
     </Tab.Navigator>
   );
@@ -137,6 +177,7 @@ const AppNavigator = () => {
 
   return (
     <NavigationContainer>
+      <StatusBar barStyle="dark-content" backgroundColor="white" translucent={false} />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isAuthenticated ? (
           <Stack.Screen name="Login">
