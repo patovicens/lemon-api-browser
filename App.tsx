@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AppNavigator from './src/navigation/AppNavigator';
+import { AuthProvider } from './src/contexts/AuthContext';
 import { configureGoogleSignIn } from './src/utils/googleAuth';
 
 const queryClient = new QueryClient({
@@ -18,9 +19,11 @@ const App = () => {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppNavigator />
-    </QueryClientProvider>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AppNavigator />
+      </QueryClientProvider>
+    </AuthProvider>
   );
 };
 

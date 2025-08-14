@@ -15,11 +15,16 @@ import CryptoListItem from '../components/CryptoListItem';
 import { CryptoCurrency } from '../types/crypto';
 import LoadingScreen from '../components/LoadingScreen';
 import MyStatusBar from '../components/MyStatusBar';
+import { colors } from '../theme';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faUser, faRotate, faGear } from '@fortawesome/free-solid-svg-icons';
+import { useAuth } from '../contexts/AuthContext';
 
 const CryptoListScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
+  const { user, handleLogout } = useAuth();
   
   const {
     data,
@@ -54,6 +59,10 @@ const CryptoListScreen: React.FC = () => {
   const displayList = debouncedQuery.trim() ? (searchResults || []) : cryptoList;
 
   const handleRefresh = async () => {
+    if (refreshing || isFetching) {
+      return;
+    }
+    
     setRefreshing(true);
     try {
       await refetch();
@@ -159,10 +168,32 @@ const CryptoListScreen: React.FC = () => {
     <SafeAreaView style={styles.container} edges={[]} >
       <MyStatusBar backgroundColor="white" barStyle="dark-content" />
       <View style={styles.header}>
-        <Text style={styles.title}>Crypto List</Text>
-        {isFetching && !isLoading && (
-          <Text style={styles.updatingText}>Updating...</Text>
-        )}
+        <TouchableOpacity style={styles.headerLeft} onPress={handleLogout}>
+          <FontAwesomeIcon icon={faUser} size={20} color={colors.textPrimary} />
+          <Text style={styles.title}>
+            {user?.email ? `@${user.email.split('@')[0]}` : '@User'}
+          </Text>
+        </TouchableOpacity>
+        
+        <View style={styles.headerRight}>
+          {isFetching && !isLoading && (
+            <Text style={styles.updatingText}>Updating...</Text>
+          )}
+          <TouchableOpacity 
+            onPress={handleRefresh} 
+            style={styles.iconButton}
+            disabled={refreshing || isFetching}
+          >
+            <FontAwesomeIcon 
+              icon={faRotate} 
+              size={18} 
+              color={refreshing || isFetching ? colors.textTertiary : colors.textSecondary} 
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => Alert.alert('Settings', 'Settings coming soon!')} style={styles.iconButton}>
+            <FontAwesomeIcon icon={faGear} size={18} color={colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.searchContainer}>
@@ -197,8 +228,8 @@ const CryptoListScreen: React.FC = () => {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={handleRefresh}
-                colors={['#4285F4']}
-                tintColor="#4285F4"
+                colors={[colors.primary]}
+                tintColor={colors.primary}
               />
             ) : undefined
           }
@@ -207,12 +238,11 @@ const CryptoListScreen: React.FC = () => {
           ListFooterComponent={renderEndMessage}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContainer}
-          // Performance optimizations
           removeClippedSubviews={true}
           maxToRenderPerBatch={10}
           windowSize={10}
           initialNumToRender={10}
-          getItemLayout={(data, index) => ({
+          getItemLayout={(_, index) => ({
             length: 56,
             offset: 56 * index,
             index,
@@ -226,7 +256,7 @@ const CryptoListScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -234,18 +264,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: 'white',
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: colors.border,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
+    marginLeft: 8,
+  },
+  iconButton: {
+    padding: 8,
+    borderRadius: 8,
   },
   updatingText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     fontStyle: 'italic',
   },
   listContainer: {
@@ -253,24 +300,24 @@ const styles = StyleSheet.create({
   searchContainer: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: 'white',
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: colors.border,
   },
   searchInputContainer: {
     position: 'relative',
   },
   searchInput: {
     height: 40,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.searchBackground,
     borderRadius: 20,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#333',
+    color: colors.textPrimary,
   },
   searchInputSearching: {
-    backgroundColor: '#e3f2fd',
-    borderColor: '#2196f3',
+    backgroundColor: colors.searchActive,
+    borderColor: colors.searchBorder,
     borderWidth: 1,
   },
   searchIndicator: {
@@ -283,7 +330,7 @@ const styles = StyleSheet.create({
   },
   searchingText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     fontStyle: 'italic',
     textAlign: 'center',
     marginTop: 8,
@@ -297,7 +344,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 16,
   },
@@ -310,23 +357,23 @@ const styles = StyleSheet.create({
   errorTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
     marginBottom: 8,
   },
   errorMessage: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 20,
   },
   retryButton: {
-    backgroundColor: '#4285F4',
+    backgroundColor: colors.primary,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
   },
   retryButtonText: {
-    color: 'white',
+    color: colors.surface,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -336,12 +383,12 @@ const styles = StyleSheet.create({
   },
   endMessage: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     fontStyle: 'italic',
   },
   endSubMessage: {
     fontSize: 14,
-    color: '#999',
+    color: colors.textTertiary,
     marginTop: 4,
   },
 });

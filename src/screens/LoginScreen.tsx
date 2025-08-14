@@ -9,13 +9,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { signIn } from '../utils/googleAuth';
-import { AuthUser } from '../utils/auth';
+import { useAuth } from '../contexts/AuthContext';
 
-interface LoginScreenProps {
-  onLogin: (user: AuthUser) => void;
-}
-
-const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
+const LoginScreen: React.FC = () => {
+  const { handleLogin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleSignIn = async () => {
@@ -24,7 +21,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     try {
       const user = await signIn();
       console.log('Google Sign-In successful:', user);
-      onLogin(user);
+      handleLogin(user);
     } catch (error: any) {
       console.error('Google Sign-In error:', error);
       
