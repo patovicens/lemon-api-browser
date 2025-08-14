@@ -8,7 +8,7 @@ import {
   TextInput,
 } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faUserCircle, faRotate, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faRotate, faSearch, faTimes, faArrowUpWideShort } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { colors } from '../theme';
 
@@ -18,6 +18,8 @@ interface HomeHeaderProps {
   onRefresh?: () => void;
   onSearch?: (query: string) => void;
   onSearchSubmit?: (query: string) => void;
+  onToggleFilters?: () => void;
+  isFiltersVisible?: boolean;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({ 
@@ -25,7 +27,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   isRefreshing = false, 
   onRefresh,
   onSearch,
-  onSearchSubmit
+  onSearchSubmit,
+  onToggleFilters,
+  isFiltersVisible = false
 }) => {
   const { user, handleLogout } = useAuth();
   const [isSearchActive, setIsSearchActive] = useState(false);
@@ -113,6 +117,17 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               icon={faRotate} 
               size={18} 
               color={isRefreshing || isFetching ? colors.textTertiary : colors.textSecondary} 
+            />
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            onPress={onToggleFilters}
+            style={[styles.iconButton, isFiltersVisible && styles.iconButtonActive]}
+          >
+            <FontAwesomeIcon 
+              icon={faArrowUpWideShort} 
+              size={20} 
+              color={isFiltersVisible ? colors.primary : colors.textSecondary} 
             />
           </TouchableOpacity>
           
@@ -239,6 +254,9 @@ const styles = StyleSheet.create({
   iconButton: {
     padding: 8,
     borderRadius: 8,
+  },
+  iconButtonActive: {
+    backgroundColor: colors.primaryLight,
   },
   updatingText: {
     fontSize: 14,

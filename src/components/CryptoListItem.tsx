@@ -16,6 +16,9 @@ interface CryptoListItemProps {
 
 const CryptoListItem: React.FC<CryptoListItemProps> = React.memo(({ crypto, onPress }) => {
   const formattedPrice = useMemo(() => {
+    if (crypto.current_price === null || crypto.current_price === undefined) {
+      return 'N/A';
+    }
     if (crypto.current_price < 1) {
       return `$${crypto.current_price.toFixed(4)}`;
     }

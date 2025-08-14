@@ -25,6 +25,8 @@ export const colors = {
   
   statusBarLight: '#ffffff',
   statusBarDark: '#000000',
+  
+  opacityBlack: 'rgba(0, 0, 0, 0.5)',
 } as const;
 
 export type ColorKey = keyof typeof colors;
