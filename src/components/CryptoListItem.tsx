@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { CryptoCurrency } from '../types/crypto';
+import { colors } from '../theme';
 
 interface CryptoListItemProps {
   crypto: CryptoCurrency;
@@ -73,9 +74,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: 'white',
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: colors.borderLight,
   },
   leftSection: {
     flexDirection: 'row',
@@ -94,12 +95,12 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: colors.textPrimary,
     marginBottom: 2,
   },
   symbol: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
   },
   rightSection: {
     alignItems: 'flex-end',
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: colors.textPrimary,
     marginBottom: 2,
   },
   percentage: {
@@ -115,10 +116,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   positive: {
-    color: '#22c55e',
+    color: colors.success,
   },
   negative: {
-    color: '#ef4444',
+    color: colors.error,
   },
 });
 
