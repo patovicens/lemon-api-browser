@@ -1,85 +1,67 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
-  FlatList,
   RefreshControl,
   Alert,
-  TouchableOpacity,
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useCryptoInfiniteList, useCryptoSearch } from '../hooks/useCryptoData';
-import CryptoListItem from '../components/CryptoListItem';
+import CryptoListItem from '../components/home/CryptoListItem';
 import { CryptoCurrency } from '../types/crypto';
-import LoadingScreen from '../components/LoadingScreen';
-import MyStatusBar from '../components/MyStatusBar';
-import HomeHeader from '../components/HomeHeader';
+import LoadingScreen from '../components/common/LoadingScreen';
+import MyStatusBar from '../components/common/MyStatusBar';
+import HomeHeader from '../components/header/HomeHeader';
+import FilterSortBar from '../components/home/FilterSortBar';
+import RateLimitAlert from '../components/common/RateLimitAlert';
+import EndMessage from '../components/home/EndMessage';
+import EmptyState from '../components/home/EmptyState';
+import ErrorState from '../components/home/ErrorState';
+import { useCryptoList } from '../contexts/CryptoListContext';
+import { useRateLimit } from '../contexts/RateLimitContext';
 import { colors } from '../theme';
 
 const CryptoListScreen: React.FC = () => {
-  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [isFiltersVisible, setIsFiltersVisible] = useState(false);
+  const [shouldRenderFilters, setShouldRenderFilters] = useState(false);
+  const [listKey, setListKey] = useState(0);
+  const { resetRateLimit } = useRateLimit();
   
   const {
-    data,
+    displayList,
     isLoading,
     error,
-    refetch,
     isFetching,
-    fetchNextPage,
+    isSearching,
+    isRateLimited,
     hasNextPage,
     isFetchingNextPage,
-  } = useCryptoInfiniteList({
-    vs_currency: 'usd',
-    order: 'market_cap_desc',
-    per_page: 15,
-  });
+    refreshing,
+    handleRefresh,
+    handleLoadMore,
+    refetch,
+    currentSort,
+    currentFilters,
+    debouncedQuery,
+    setSort,
+    setFilters,
+    setQuery,
+  } = useCryptoList();
+  
+  useEffect(() => {
+    setListKey(prev => prev + 1);
+  }, [currentSort]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setDebouncedQuery(searchQuery);
-    }, 1500);
+      setQuery(searchQuery);
+    }, 1000);
 
     return () => clearTimeout(timeout);
-  }, [searchQuery]);
+  }, [searchQuery, setQuery]);
 
-  const {
-    data: searchResults,
-    isLoading: isSearching,
-  } = useCryptoSearch(debouncedQuery);
 
-  const cryptoList = useMemo(() => data?.pages.flat() || [], [data]);
-
-  const displayList = debouncedQuery.trim() ? (searchResults || []) : cryptoList;
-
-  const handleRefresh = async () => {
-    console.log('handleRefresh called, refreshing:', refreshing, 'isFetching:', isFetching);
-    if (refreshing || isFetching) {
-      console.log('Refresh already in progress, skipping');
-      return;
-    }
-    
-    setRefreshing(true);
-    try {
-      console.log('Starting refetch...');
-      // Use React Query's built-in refetch - it will handle pagination properly
-      await refetch();
-      console.log('Refetch completed');
-    } catch (refreshError) {
-      console.error('Refresh error:', refreshError);
-    } finally {
-      setRefreshing(false);
-      console.log('Refresh finished');
-    }
-  };
-
-  const handleLoadMore = () => {
-    if (!debouncedQuery.trim() && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  };
 
   const handleCryptoPress = useCallback((crypto: CryptoCurrency) => {
     const priceChange = crypto.price_change_percentage_24h !== null 
@@ -97,123 +79,130 @@ const CryptoListScreen: React.FC = () => {
     <CryptoListItem crypto={item} onPress={handleCryptoPress} />
   ), [handleCryptoPress]);
 
+  const keyExtractor = useCallback((item: CryptoCurrency) => {
+    // Create a unique key using multiple properties to avoid duplicates
+    // Handle null values and ensure uniqueness
+    const id = item.id || 'unknown';
+    const symbol = item.symbol || 'unknown';
+    const rank = item.market_cap_rank || 'unranked';
+    const name = item.name || 'unknown';
+    
+    return `${id}-${symbol}-${rank}-${name}`;
+  }, []);
+
+  
   const renderEndMessage = () => {
-    // Don't show pagination messages when searching
-    if (debouncedQuery.trim()) {
-      return null;
-    }
-
-    if (isFetchingNextPage) {
-      return (
-        <View style={styles.endMessageContainer}>
-          <Text style={styles.endMessage}>Loading more...</Text>
-        </View>
-      );
-    }
+    const hasSearchQuery = debouncedQuery.trim().length > 0;
+    const isFiltering = currentFilters.length > 0;
     
-    if (!hasNextPage && cryptoList.length > 0) {
+    if (isRateLimited) {
       return (
-        <View style={styles.endMessageContainer}>
-          <Text style={styles.endMessage}>You've reached the end! 🎉</Text>
-          <Text style={styles.endSubMessage}>All cryptocurrencies loaded</Text>
-        </View>
-      );
-    }
-    
-    return null;
-  };
-
-  const renderEmptyState = () => {
-    if (debouncedQuery.trim() && isSearching) {
-      return (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.searchingText}>Searching for "{debouncedQuery}"...</Text>
-        </View>
-      );
-    }
-    
-    if (debouncedQuery.trim() && !isSearching) {
-      return (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No cryptocurrencies found for "{debouncedQuery}"</Text>
-        </View>
+        <RateLimitAlert 
+          onRetry={() => {
+            resetRateLimit();
+            refetch();
+          }}
+        />
       );
     }
     
     return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>No cryptocurrencies found</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
-          <Text style={styles.retryButtonText}>Retry</Text>
-        </TouchableOpacity>
-      </View>
+      <EndMessage
+        hasSearchQuery={hasSearchQuery}
+        isFiltering={isFiltering}
+        isFetchingNextPage={isFetchingNextPage}
+        displayListLength={displayList.length}
+        hasNextPage={hasNextPage}
+      />
+    );
+  };
+
+  const renderEmptyState = () => {
+    const trimmedQuery = debouncedQuery.trim();
+    return (
+      <EmptyState
+        searchQuery={trimmedQuery}
+        isSearching={isSearching}
+        onRetry={() => refetch()}
+      />
     );
   };
 
   const renderErrorState = () => (
-    <View style={styles.errorContainer}>
-      <Text style={styles.errorTitle}>Something went wrong</Text>
-      <Text style={styles.errorMessage}>
-        {error?.message || 'Failed to load cryptocurrencies'}
-      </Text>
-      <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
-        <Text style={styles.retryButtonText}>Try Again</Text>
-      </TouchableOpacity>
-    </View>
+    <ErrorState
+      error={error}
+      onRetry={() => refetch()}
+    />
   );
 
-  if (isLoading && !cryptoList.length) {
+  if (isLoading && !displayList.length) {
     return <LoadingScreen message="Loading cryptocurrencies..." />;
   }
 
   return (
     <SafeAreaView style={styles.container} edges={[]} >
       <MyStatusBar backgroundColor="white" barStyle="dark-content" />
-      <HomeHeader 
-        isFetching={isFetching}
-        isRefreshing={refreshing}
-        onRefresh={handleRefresh}
-        onSearch={setSearchQuery}
-        onSearchSubmit={(query) => {
-          setDebouncedQuery(query);
-        }}
-      />
-
-      {error && !cryptoList.length ? (
-        renderErrorState()
-      ) : (
-        // TODO: Use shopify flashlist
-        <FlatList
-          key={debouncedQuery.trim() ? 'search' : 'list'}
-          data={displayList}
-          renderItem={renderCryptoItem}
-          keyExtractor={(item) => item.id}
-          refreshControl={
-            !debouncedQuery.trim() ? (
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={handleRefresh}
-                colors={[colors.primary]}
-                tintColor={colors.primary}
-              />
-            ) : undefined
-          }
-          onEndReached={handleLoadMore}
-          ListEmptyComponent={renderEmptyState}
-          ListFooterComponent={renderEndMessage}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContainer}
-          removeClippedSubviews={true}
-          maxToRenderPerBatch={10}
-          windowSize={10}
-          initialNumToRender={10}
-          getItemLayout={(_, index) => ({
-            length: 56,
-            offset: 56 * index,
-            index,
-          })}
+      <View style={styles.contentContainer}>
+        <HomeHeader 
+          isFetching={isFetching}
+          isRefreshing={refreshing}
+          onRefresh={handleRefresh}
+          onSearch={setSearchQuery}
+          onSearchSubmit={(query) => {
+            setQuery(query);
+          }}
+          onToggleFilters={() => {
+            const newVisibility = !isFiltersVisible;
+            setIsFiltersVisible(newVisibility);
+            if (newVisibility) {
+              setShouldRenderFilters(true);
+            }
+          }}
+          isFiltersVisible={isFiltersVisible}
         />
-      )}
+
+        {shouldRenderFilters && (
+          <FilterSortBar
+            currentSort={currentSort}
+            currentFilters={currentFilters}
+            onSortChange={setSort}
+            onFilterChange={setFilters}
+            isVisible={isFiltersVisible}
+            onAnimationComplete={() => {
+              if (!isFiltersVisible) {
+                setShouldRenderFilters(false);
+              }
+            }}
+          />
+        )}
+
+        {error && !displayList.length ? (
+          renderErrorState()
+        ) : (
+          <FlashList
+            key={`list-${currentSort?.key || 'none'}-${currentSort?.direction || 'none'}-${listKey}`}
+            data={displayList}
+            renderItem={renderCryptoItem}
+            keyExtractor={keyExtractor}
+            refreshControl={
+              !debouncedQuery.trim() ? (
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={handleRefresh}
+                  colors={[colors.primary]}
+                  tintColor={colors.primary}
+                />
+              ) : undefined
+            }
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0}
+            ListEmptyComponent={renderEmptyState}
+            ListFooterComponent={renderEndMessage}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContainer}
+          />
+        )}
+      </View>
     </SafeAreaView>
   );
 };
@@ -223,72 +212,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-
+  contentContainer: {
+    flex: 1,
+  },
   listContainer: {
-  },
-
-  searchingText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontStyle: 'italic',
-    textAlign: 'center',
-    marginTop: 8,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 20,
-    paddingHorizontal: 20,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  errorTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 8,
-  },
-  errorMessage: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  retryButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    color: colors.surface,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  endMessageContainer: {
-    paddingVertical: 20,
-    alignItems: 'center',
-  },
-  endMessage: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    fontStyle: 'italic',
-  },
-  endSubMessage: {
-    fontSize: 14,
-    color: colors.textTertiary,
-    marginTop: 4,
   },
 });
 

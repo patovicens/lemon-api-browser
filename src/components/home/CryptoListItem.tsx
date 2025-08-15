@@ -6,8 +6,8 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import { CryptoCurrency } from '../types/crypto';
-import { colors } from '../theme';
+import { CryptoCurrency } from '../../types/crypto';
+import { colors } from '../../theme';
 
 interface CryptoListItemProps {
   crypto: CryptoCurrency;
@@ -16,32 +16,35 @@ interface CryptoListItemProps {
 
 const CryptoListItem: React.FC<CryptoListItemProps> = React.memo(({ crypto, onPress }) => {
   const formattedPrice = useMemo(() => {
-    if (crypto.current_price === null || crypto.current_price === undefined) {
+    if (!crypto || crypto.current_price === null || crypto.current_price === undefined) {
       return 'N/A';
     }
     if (crypto.current_price < 1) {
       return `$${crypto.current_price.toFixed(4)}`;
     }
     return `$${crypto.current_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  }, [crypto.current_price]);
+  }, [crypto]);
 
   const formattedPercentage = useMemo(() => {
-    if (crypto.price_change_percentage_24h === null) {
+    if (!crypto || crypto.price_change_percentage_24h === null || crypto.price_change_percentage_24h === undefined) {
       return 'N/A';
     }
     const sign = crypto.price_change_percentage_24h >= 0 ? '+' : '';
     return `${sign}${crypto.price_change_percentage_24h.toFixed(2)}%`;
-  }, [crypto.price_change_percentage_24h]);
+  }, [crypto]);
 
   const isPositive = useMemo(() => 
-    crypto.price_change_percentage_24h !== null && crypto.price_change_percentage_24h >= 0, 
-    [crypto.price_change_percentage_24h]
+    crypto && crypto.price_change_percentage_24h !== null && crypto.price_change_percentage_24h !== undefined && crypto.price_change_percentage_24h >= 0, 
+    [crypto]
   );
-
 
   const handlePress = useCallback(() => {
     onPress?.(crypto);
   }, [onPress, crypto]);
+
+  if (!crypto || !crypto.id || !crypto.name) {
+    return null;
+  }
 
   return (
     <TouchableOpacity 

@@ -9,8 +9,8 @@ import {
 } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faUserCircle, faRotate, faSearch, faTimes, faArrowUpWideShort } from '@fortawesome/free-solid-svg-icons';
-import { useAuth } from '../contexts/AuthContext';
-import { colors } from '../theme';
+import { useAuth } from '../../contexts/AuthContext';
+import { colors } from '../../theme';
 
 interface HomeHeaderProps {
   isFetching?: boolean;

@@ -15,7 +15,7 @@ import CryptoListScreen from '../screens/CryptoListScreen';
 import ExchangeScreen from '../screens/ExchangeScreen';
 import ScannerScreen from '../screens/ScannerScreen';
 
-import LoadingScreen from '../components/LoadingScreen';
+import LoadingScreen from '../components/common/LoadingScreen';
 import { useAuth } from '../contexts/AuthContext';
 import { colors } from '../theme';
 

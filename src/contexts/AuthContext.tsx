@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { getCurrentUser, signOut } from '../utils/googleAuth';
-import { AuthUser } from '../utils/auth';
+import { AuthUser } from '../types/auth';
 
 interface AuthContextType {
   isAuthenticated: boolean;

@@ -1,19 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-export interface AuthUser {
-  id: string;
-  name: string;
-  email: string;
-  photo: string | null;
-  familyName: string;
-  givenName: string;
-}
-
-export interface AuthSession {
-  user: AuthUser;
-  idToken: string;
-  expiresAt: number;
-}
+import { AuthUser, AuthSession } from '../types/auth';
 
 const AUTH_SESSION_KEY = '@auth_session';
 

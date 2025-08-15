@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import { AuthUser } from '../utils/auth';
+import { AuthUser } from '../../types/auth';
+import { colors } from '../../theme';
 
 interface UserProfileProps {
   user: AuthUser;
@@ -42,9 +43,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onLogout }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: colors.border,
   },
   header: {
     flexDirection: 'row',
@@ -68,13 +69,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#4285F4',
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   avatarText: {
-    color: 'white',
+    color: colors.surface,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -84,21 +85,21 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: colors.textPrimary,
   },
   userEmail: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     marginTop: 2,
   },
   logoutButton: {
-    backgroundColor: '#dc3545',
+    backgroundColor: colors.error,
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 6,
   },
   logoutButtonText: {
-    color: 'white',
+    color: colors.surface,
     fontSize: 14,
     fontWeight: '600',
   },
