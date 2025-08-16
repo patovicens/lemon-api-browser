@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faSort, faFilter, faChevronDown, faCheck, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
-import { colors } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
+import { ThemeColors } from '../../theme';
 
 export interface SortOption {
   key: string;
@@ -56,6 +57,9 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
   isVisible = true,
   onAnimationComplete,
 }) => {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   const [showSortModal, setShowSortModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   
@@ -183,11 +187,11 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
           style={styles.sortFieldButton}
           onPress={() => setShowSortModal(true)}
         >
-          <FontAwesomeIcon icon={faSort} size={14} color={colors.textSecondary} />
+          <FontAwesomeIcon icon={faSort} size={14} color={colors.themeTextSecondary} />
           <Text style={styles.buttonText}>
             {currentSort.label || 'Sort'}
           </Text>
-          <FontAwesomeIcon icon={faChevronDown} size={10} color={colors.textSecondary} />
+          <FontAwesomeIcon icon={faChevronDown} size={10} color={colors.themeTextSecondary} />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -197,7 +201,7 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
           ]}
           onPress={() => handleDirectionSelect('asc')}
         >
-          <FontAwesomeIcon icon={faArrowUp} size={14} color={colors.textSecondary} />
+          <FontAwesomeIcon icon={faArrowUp} size={14} color={colors.themeTextSecondary} />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -207,14 +211,14 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
           ]}
           onPress={() => handleDirectionSelect('desc')}
         >
-          <FontAwesomeIcon icon={faArrowDown} size={14} color={colors.textSecondary} />
+          <FontAwesomeIcon icon={faArrowDown} size={14} color={colors.themeTextSecondary} />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.button, getActiveFiltersCount() > 0 && styles.buttonActive]}
           onPress={() => setShowFilterModal(true)}
         >
-          <FontAwesomeIcon icon={faFilter} size={14} color={colors.textSecondary} />
+          <FontAwesomeIcon icon={faFilter} size={14} color={colors.themeTextSecondary} />
           <Text style={styles.buttonText}>
             {getActiveFiltersCount() > 0 ? getActiveFiltersCount() : 'Filter'}
           </Text>
@@ -261,7 +265,7 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
                     {sort.label}
                   </Text>
                   {currentSort.key === sort.key && (
-                    <FontAwesomeIcon icon={faCheck} size={16} color={colors.primary} />
+                    <FontAwesomeIcon icon={faCheck} size={16} color={colors.lemon} />
                   )}
                 </TouchableOpacity>
               ))}
@@ -304,7 +308,7 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
                     {filter.label}
                   </Text>
                   {tempFilters.find(existingFilter => existingFilter.key === filter.key) && (
-                    <FontAwesomeIcon icon={faCheck} size={16} color={colors.primary} />
+                    <FontAwesomeIcon icon={faCheck} size={16} color={colors.lemon} />
                   )}
                 </TouchableOpacity>
               ))}
@@ -320,7 +324,7 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
                       onChangeText={setMinPrice}
                       placeholder="0"
                       keyboardType="numeric"
-                      placeholderTextColor={colors.textTertiary}
+                      placeholderTextColor={colors.themeTextTertiary}
                     />
                   </View>
                   <View style={styles.priceInputContainer}>
@@ -331,7 +335,7 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
                       onChangeText={setMaxPrice}
                       placeholder="∞"
                       keyboardType="numeric"
-                      placeholderTextColor={colors.textTertiary}
+                      placeholderTextColor={colors.themeTextTertiary}
                     />
                   </View>
                 </View>
@@ -377,13 +381,13 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     paddingHorizontal: 16,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.themeSurface,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.themeBorder,
     gap: 8,
     overflow: 'hidden', 
     minHeight: 0,
@@ -396,9 +400,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 6,
     borderRadius: 6,
-    backgroundColor: colors.searchBackground,
+    backgroundColor: colors.themeSurfaceLight,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.themeBorder,
     gap: 4,
   },
   sortFieldButton: {
@@ -409,9 +413,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 6,
     borderRadius: 6,
-    backgroundColor: colors.searchBackground,
+    backgroundColor: colors.themeSurfaceLight,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.themeBorder,
     gap: 4,
   },
   directionButton: {
@@ -422,18 +426,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     paddingVertical: 6,
     borderRadius: 6,
-    backgroundColor: colors.searchBackground,
+    backgroundColor: colors.themeSurfaceLight,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.themeBorder,
     gap: 4,
   },
   buttonActive: {
-    backgroundColor: colors.primaryLight,
-    borderColor: colors.primary,
+    backgroundColor: colors.lemonLight,
+    borderColor: colors.lemon,
   },
   buttonText: {
     fontSize: 12,
-    color: colors.textSecondary,
+    color: colors.themeTextSecondary,
     fontWeight: '500',
   },
   modalOverlay: {
@@ -442,7 +446,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.themeSurface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '70%',
@@ -454,16 +458,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.themeBorder,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: colors.textPrimary,
+    color: colors.themeText,
   },
   closeButton: {
     fontSize: 20,
-    color: colors.textSecondary,
+    color: colors.themeTextSecondary,
   },
   modalBody: {
     paddingHorizontal: 20,
@@ -472,7 +476,7 @@ const styles = StyleSheet.create({
   filterSectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.textPrimary,
+    color: colors.themeText,
     marginTop: 16,
     marginBottom: 8,
   },
@@ -486,14 +490,14 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   optionItemSelected: {
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.lemonLight,
   },
   optionText: {
     fontSize: 16,
-    color: colors.textPrimary,
+    color: colors.themeText,
   },
   optionTextSelected: {
-    color: colors.primary,
+    color: colors.lemon,
     fontWeight: '600',
   },
   modalFooter: {
@@ -502,7 +506,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     marginBottom: 16,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: colors.themeBorder,
     gap: 12,
   },
   resetButton: {
@@ -510,24 +514,24 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.themeBorder,
     alignItems: 'center',
   },
   resetButtonText: {
     fontSize: 16,
-    color: colors.textSecondary,
+    color: colors.themeTextSecondary,
     fontWeight: '600',
   },
   applyButton: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 8,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.lemon,
     alignItems: 'center',
   },
   applyButtonText: {
     fontSize: 16,
-    color: colors.surface,
+    color: colors.themeBackground,
     fontWeight: '600',
   },
   priceRangeContainer: {
@@ -543,21 +547,21 @@ const styles = StyleSheet.create({
   },
   priceInputLabel: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.themeTextSecondary,
     marginBottom: 4,
   },
   priceInput: {
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.themeBorder,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: 16,
-    color: colors.textPrimary,
-    backgroundColor: colors.surface,
+    color: colors.themeText,
+    backgroundColor: colors.themeSurface,
   },
   applyPriceRangeButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.lemon,
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
@@ -565,14 +569,14 @@ const styles = StyleSheet.create({
   },
   applyPriceRangeButtonText: {
     fontSize: 16,
-    color: colors.surface,
+    color: colors.themeBackground,
     fontWeight: '600',
   },
   activePriceRangeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.lemonLight,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 8,
@@ -580,12 +584,12 @@ const styles = StyleSheet.create({
   },
   activePriceRangeText: {
     fontSize: 14,
-    color: colors.primary,
+    color: colors.lemon,
     fontWeight: '600',
   },
   removePriceRangeText: {
     fontSize: 16,
-    color: colors.primary,
+    color: colors.lemon,
     fontWeight: '600',
   },
 });

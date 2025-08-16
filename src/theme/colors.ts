@@ -1,15 +1,32 @@
 
 export const colors = {
-  primary: '#4285F4',
-  primaryLight: '#e3f2fd',
-  primaryDark: '#1976d2',
+  // Lemon theme colors
+  lemon: '#FFC107',
+  lemonLight: 'rgba(255, 193, 7, 0.2)',
+  lemonDark: '#E6A800',
+  lemonGradient: 'rgba(255, 193, 7, 0.1)',
+  lemonGradientLight: 'rgba(255, 193, 7, 0.05)',
   
-  background: '#f5f5f5',
-  surface: '#ffffff',
+  // Dark theme colors
+  darkBackground: '#1a1a1a',
+  darkSurface: '#2a2a2a',
+  darkSurfaceLight: '#333333',
+  darkText: '#FFFFFF',
+  darkTextSecondary: '#CCCCCC',
+  darkTextTertiary: '#999999',
+  darkBorder: '#404040',
+  darkBorderLight: '#333333',
   
-  textPrimary: '#333333',
-  textSecondary: '#666666',
-  textTertiary: '#999999',
+  // Light theme colors (original)
+  lightBackground: '#f5f5f5',
+  lightSurface: '#ffffff',
+  lightSurfaceLight: '#fafafa',
+  lightText: '#333333',
+  lightTextSecondary: '#666666',
+  lightTextTertiary: '#999999',
+  lightBorder: '#e0e0e0',
+  lightBorderLight: '#f0f0f0',
+
   
   success: '#22c55e',
   error: '#ef4444',

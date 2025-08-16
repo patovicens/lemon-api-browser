@@ -52,13 +52,13 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   retryButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.error,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
   },
   retryButtonText: {
-    color: colors.surface,
+    color: colors.errorLight,
     fontSize: 14,
     fontWeight: '600',
   },

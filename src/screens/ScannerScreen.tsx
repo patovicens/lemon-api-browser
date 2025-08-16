@@ -5,8 +5,14 @@ import {
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '../contexts/ThemeContext';
+import { ThemeColors } from '../theme';
 
 const ScannerScreen: React.FC = () => {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -17,10 +23,10 @@ const ScannerScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.themeBackground,
   },
   content: {
     flex: 1,
@@ -31,12 +37,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.themeText,
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: colors.themeTextSecondary,
   },
 });
 

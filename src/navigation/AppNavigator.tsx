@@ -2,7 +2,6 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StatusBar } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { 
   faCoins, 
@@ -17,7 +16,7 @@ import ScannerScreen from '../screens/ScannerScreen';
 
 import LoadingScreen from '../components/common/LoadingScreen';
 import { useAuth } from '../contexts/AuthContext';
-import { colors } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -38,16 +37,18 @@ const ScannerIcon = ({ color, size }: { color: string; size: number }) => (
 
 
 const MainTabs = () => {
+  const { colors } = useTheme();
+  
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarActiveTintColor: colors.lemon,
+        tabBarInactiveTintColor: colors.themeTextSecondary,
         tabBarStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.themeSurface,
           borderTopWidth: 1,
-          borderTopColor: colors.border,
+          borderTopColor: colors.themeBorder,
           paddingBottom: 20,
           paddingTop: 5,
           height: 80,
@@ -96,7 +97,6 @@ const AppNavigator = () => {
 
   return (
     <NavigationContainer>
-      <StatusBar barStyle="dark-content" backgroundColor="white" translucent={false} />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isAuthenticated ? (
           <Stack.Screen name="Login" component={LoginScreen} />

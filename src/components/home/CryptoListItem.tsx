@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { CryptoCurrency } from '../../types/crypto';
-import { colors } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
+import { ThemeColors } from '../../theme';
 
 interface CryptoListItemProps {
   crypto: CryptoCurrency;
@@ -15,6 +16,9 @@ interface CryptoListItemProps {
 }
 
 const CryptoListItem: React.FC<CryptoListItemProps> = React.memo(({ crypto, onPress }) => {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   const formattedPrice = useMemo(() => {
     if (!crypto || crypto.current_price === null || crypto.current_price === undefined) {
       return 'N/A';
@@ -73,16 +77,16 @@ const CryptoListItem: React.FC<CryptoListItemProps> = React.memo(({ crypto, onPr
   );
 });
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.themeSurface,
     borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
+    borderBottomColor: colors.themeBorderLight,
   },
   leftSection: {
     flexDirection: 'row',
@@ -101,12 +105,12 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.textPrimary,
+    color: colors.themeText,
     marginBottom: 2,
   },
   symbol: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.themeTextSecondary,
   },
   rightSection: {
     alignItems: 'flex-end',
@@ -114,7 +118,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.textPrimary,
+    color: colors.themeText,
     marginBottom: 2,
   },
   percentage: {

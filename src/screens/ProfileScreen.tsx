@@ -8,7 +8,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import UserProfile from '../components/profile/UserProfile';
 import { AuthUser } from '../types/auth';
-import { colors } from '../theme';
+import { ThemeColors } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface ProfileScreenProps {
   user: AuthUser;
@@ -16,6 +17,9 @@ interface ProfileScreenProps {
 }
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onLogout }) => {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.content}>
@@ -31,16 +35,16 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onLogout }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.themeBackground,
   },
   content: {
     flex: 1,
   },
   section: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.themeSurface,
     marginTop: 20,
     padding: 20,
   },

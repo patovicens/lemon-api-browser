@@ -6,7 +6,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '../../theme';
+import { ThemeColors } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface LoadingScreenProps {
   message?: string;
@@ -15,20 +16,23 @@ interface LoadingScreenProps {
 const LoadingScreen: React.FC<LoadingScreenProps> = ({ 
   message = 'Loading...' 
 }) => {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={colors.lemon} />
         <Text style={styles.message}>{message}</Text>
       </View>
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.themeBackground,
   },
   content: {
     flex: 1,
@@ -39,7 +43,7 @@ const styles = StyleSheet.create({
   message: {
     marginTop: 20,
     fontSize: 16,
-    color: colors.textSecondary,
+    color: colors.themeTextSecondary,
     textAlign: 'center',
   },
 });

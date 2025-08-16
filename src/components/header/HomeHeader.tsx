@@ -8,9 +8,10 @@ import {
   TextInput,
 } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faUserCircle, faRotate, faSearch, faTimes, faArrowUpWideShort } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faRotate, faSearch, faTimes, faArrowUpWideShort, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../contexts/AuthContext';
-import { colors } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
+import { ThemeColors } from '../../theme';
 
 interface HomeHeaderProps {
   isFetching?: boolean;
@@ -32,6 +33,8 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   isFiltersVisible = false
 }) => {
   const { user, handleLogout } = useAuth();
+  const { colors, theme, toggleTheme } = useTheme();
+  const styles = createStyles(colors);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchAnimation = useRef(new Animated.Value(0)).current;
@@ -88,21 +91,36 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     if (onSearch) onSearch(text);
   };
 
+  
+
   return (
     <View style={styles.header}>
       <View style={styles.headerTop}>
-        <TouchableOpacity 
-          style={styles.profileButton} 
-          onPress={handleLogout}
-          activeOpacity={0.7}
-        >
-          <View style={styles.profileButtonContent}>
-            <FontAwesomeIcon icon={faUserCircle} size={20} color={colors.textPrimary} />
-            <Text style={styles.profileButtonText}>
-              {user?.email ? `@${user.email.split('@')[0]}` : '@User'}
-            </Text>
-          </View>
-        </TouchableOpacity>
+        <View style={styles.profileSection}>
+          <TouchableOpacity 
+            style={styles.profileButton} 
+            onPress={handleLogout}
+            activeOpacity={0.7}
+          >
+            <View style={styles.profileButtonContent}>
+              <FontAwesomeIcon icon={faUserCircle} size={20} color={colors.themeText} />
+              <Text style={styles.profileButtonText}>
+                {user?.email ? `@${user.email.split('@')[0]}` : '@User'}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            onPress={toggleTheme}
+            style={styles.themeToggleButton}
+          >
+            <FontAwesomeIcon 
+              icon={theme === 'dark' ? faSun : faMoon} 
+              size={14} 
+              color={colors.themeTextSecondary} 
+            />
+          </TouchableOpacity>
+        </View>
         
         <View style={styles.headerRight}>
           {isFetching && !isRefreshing && (
@@ -116,9 +134,11 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             <FontAwesomeIcon 
               icon={faRotate} 
               size={18} 
-              color={isRefreshing || isFetching ? colors.textTertiary : colors.textSecondary} 
+              color={isRefreshing || isFetching ? colors.themeTextTertiary : colors.themeTextSecondary} 
             />
           </TouchableOpacity>
+          
+
           
           <TouchableOpacity 
             onPress={onToggleFilters}
@@ -127,7 +147,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             <FontAwesomeIcon 
               icon={faArrowUpWideShort} 
               size={20} 
-              color={isFiltersVisible ? colors.primary : colors.textSecondary} 
+              color={isFiltersVisible ? colors.lemon : colors.themeTextSecondary} 
             />
           </TouchableOpacity>
           
@@ -146,7 +166,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               <FontAwesomeIcon 
                 icon={isSearchActive ? faTimes : faSearch} 
                 size={18} 
-                color={colors.textSecondary} 
+                color={colors.themeTextSecondary} 
               />
             </Animated.View>
           </TouchableOpacity>
@@ -189,7 +209,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             ref={searchInputRef}
             style={styles.searchInput}
             placeholder="Search cryptocurrencies..."
-            placeholderTextColor={colors.textTertiary}
+            placeholderTextColor={colors.themeTextTertiary}
             value={searchQuery}
             onChangeText={handleSearchChange}
             returnKeyType="search"
@@ -205,14 +225,14 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   header: {
     flexDirection: 'column',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.themeSurface,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.themeBorder,
   },
   headerTop: {
     flexDirection: 'row',
@@ -220,14 +240,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
+  profileSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   profileButton: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.themeSurface,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.themeBorder,
     borderRadius: 12,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    shadowColor: colors.textPrimary,
+    shadowColor: colors.themeText,
     shadowOffset: {
       width: 0,
       height: 1,
@@ -235,6 +260,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+  },
+  themeToggleButton: {
+    padding: 6,
+    borderRadius: 8,
   },
   profileButtonContent: {
     flexDirection: 'row',
@@ -244,7 +273,7 @@ const styles = StyleSheet.create({
   profileButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.textPrimary,
+    color: colors.themeText,
   },
   headerRight: {
     flexDirection: 'row',
@@ -256,16 +285,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   iconButtonActive: {
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.lemonLight,
   },
   updatingText: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.themeTextSecondary,
     fontStyle: 'italic',
   },
   searchContainer: {
     width: '100%',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.themeSurface,
     paddingHorizontal: 0,
     paddingVertical: 6,
   },
@@ -277,11 +306,11 @@ const styles = StyleSheet.create({
     height: 40,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: colors.textPrimary,
-    backgroundColor: colors.searchBackground,
+    color: colors.themeText,
+    backgroundColor: colors.themeSurfaceLight,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.themeBorder,
   },
 });
 

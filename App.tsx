@@ -4,7 +4,9 @@ import AppNavigator from './src/navigation/AppNavigator';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { RateLimitProvider } from './src/contexts/RateLimitContext';
 import { CryptoListProvider } from './src/contexts/CryptoListContext';
+import { ThemeProvider } from './src/contexts/ThemeContext';
 import { configureGoogleSignIn } from './src/utils/googleAuth';
+import GlobalStatusBar from './src/components/common/GlobalStatusBar';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,11 +25,14 @@ const App = () => {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClient}>
-        <RateLimitProvider>
-          <CryptoListProvider>
-            <AppNavigator />
-          </CryptoListProvider>
-        </RateLimitProvider>
+        <ThemeProvider>
+          <GlobalStatusBar />
+          <RateLimitProvider>
+            <CryptoListProvider>
+              <AppNavigator />
+            </CryptoListProvider>
+          </RateLimitProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     </AuthProvider>
   );

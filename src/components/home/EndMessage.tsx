@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../../theme';
+import { ThemeColors } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface EndMessageProps {
   hasSearchQuery: boolean;
@@ -17,6 +18,9 @@ const EndMessage: React.FC<EndMessageProps> = ({
   displayListLength,
   hasNextPage,
 }) => {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   // Show loading message when fetching next page (only for normal browsing)
   if (isFetchingNextPage && !isFiltering) {
     return (
@@ -72,19 +76,19 @@ const EndMessage: React.FC<EndMessageProps> = ({
   return null;
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     paddingVertical: 20,
     alignItems: 'center',
   },
   endMessage: {
     fontSize: 16,
-    color: colors.textSecondary,
+    color: colors.themeTextSecondary,
     fontStyle: 'italic',
   },
   endSubMessage: {
     fontSize: 14,
-    color: colors.textTertiary,
+    color: colors.themeTextTertiary, 
     marginTop: 4,
   },
   apiLimitationContainer: {
@@ -109,7 +113,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   linkText: {
-    color: colors.primary,
+    color: colors.lemon,
     textDecorationLine: 'underline',
     fontWeight: '500',
   },

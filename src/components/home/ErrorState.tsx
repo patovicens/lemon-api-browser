@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { colors } from '../../theme';
+import { ThemeColors } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface ErrorStateProps {
   error: Error | null;
@@ -8,6 +9,9 @@ interface ErrorStateProps {
 }
 
 const ErrorState: React.FC<ErrorStateProps> = ({ error, onRetry }) => {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   return (
     <View style={styles.container}>
       <Text style={styles.errorTitle}>Something went wrong</Text>
@@ -21,7 +25,7 @@ const ErrorState: React.FC<ErrorStateProps> = ({ error, onRetry }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -31,23 +35,23 @@ const styles = StyleSheet.create({
   errorTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.textPrimary,
+    color: colors.themeText,
     marginBottom: 8,
   },
   errorMessage: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.themeTextSecondary,
     textAlign: 'center',
     marginBottom: 20,
   },
   retryButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.themeBorderLight,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
   },
   retryButtonText: {
-    color: colors.surface,
+    color: colors.themeText,
     fontSize: 14,
     fontWeight: '600',
   },

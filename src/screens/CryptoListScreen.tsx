@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import CryptoListItem from '../components/home/CryptoListItem';
 import { CryptoCurrency } from '../types/crypto';
 import LoadingScreen from '../components/common/LoadingScreen';
-import MyStatusBar from '../components/common/MyStatusBar';
+
 import HomeHeader from '../components/header/HomeHeader';
 import FilterSortBar from '../components/home/FilterSortBar';
 import RateLimitAlert from '../components/common/RateLimitAlert';
@@ -19,7 +19,8 @@ import EmptyState from '../components/home/EmptyState';
 import ErrorState from '../components/home/ErrorState';
 import { useCryptoList } from '../contexts/CryptoListContext';
 import { useRateLimit } from '../contexts/RateLimitContext';
-import { colors } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
+import { ThemeColors } from '../theme';
 
 const CryptoListScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,6 +28,8 @@ const CryptoListScreen: React.FC = () => {
   const [shouldRenderFilters, setShouldRenderFilters] = useState(false);
   const [listKey, setListKey] = useState(0);
   const { resetRateLimit } = useRateLimit();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   
   const {
     displayList,
@@ -140,8 +143,7 @@ const CryptoListScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={[]} >
-      <MyStatusBar backgroundColor="white" barStyle="dark-content" />
+    <SafeAreaView style={styles.container} edges={['top']} >
       <View style={styles.contentContainer}>
         <HomeHeader 
           isFetching={isFetching}
@@ -189,8 +191,8 @@ const CryptoListScreen: React.FC = () => {
                 <RefreshControl
                   refreshing={refreshing}
                   onRefresh={handleRefresh}
-                  colors={[colors.primary]}
-                  tintColor={colors.primary}
+                  colors={[colors.lemon]}
+                  tintColor={colors.lemon}
                 />
               ) : undefined
             }
@@ -207,16 +209,18 @@ const CryptoListScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.themeSurface,
   },
   contentContainer: {
     flex: 1,
+    backgroundColor: colors.themeBackground,
   },
   listContainer: {
   },
 });
+
 
 export default CryptoListScreen;
