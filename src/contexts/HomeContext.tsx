@@ -2,12 +2,13 @@ import React, { createContext, useContext, useMemo, useState, useCallback, React
 import { useCryptoInfiniteList, useCryptoSearch } from '../hooks/useGetCrypto';
 import { useRateLimit } from './RateLimitContext';
 import { sortCryptocurrencies, filterCryptocurrencies } from '../utils/filterSort';
-import { SortOption, FilterOption } from '../components/home/FilterSortBar';
+import { SortOption, FilterOption } from '../types/home';
+import { CryptoCurrency } from '../types/crypto';
 
 interface HomeContextType {
-  displayList: any[];
+  displayList: CryptoCurrency[];
   isLoading: boolean;
-  error: any;
+  error: unknown;
   isFetching: boolean;
   isSearching: boolean;
   isRateLimited: boolean;
@@ -19,7 +20,7 @@ interface HomeContextType {
   refreshing: boolean;
   handleRefresh: () => Promise<void>;
   handleLoadMore: () => void;
-  refetch: () => Promise<any>;
+  refetch: () => Promise<unknown>;
   setSort: (sort: SortOption) => void;
   setFilters: (filters: FilterOption[]) => void;
   setQuery: (query: string) => void;

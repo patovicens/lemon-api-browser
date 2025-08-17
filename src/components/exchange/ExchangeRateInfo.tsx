@@ -7,16 +7,7 @@ import { ThemeColors } from '../../theme';
 import { formatNumber } from '../../utils/formatting';
 import LastUpdated from './LastUpdated';
 
-interface ExchangeRateInfoProps {
-  exchangeRate?: number;
-  fromCurrencySymbol: string;
-  toCurrencySymbol: string;
-  conversionDirection: 'crypto-to-fiat' | 'fiat-to-crypto';
-  lastFetchTime?: Date;
-  currentTime: Date;
-  onRefresh: () => void;
-  isRefreshing?: boolean;
-}
+import { ExchangeRateInfoProps } from '../../types/exchange';
 
 const ExchangeRateInfo: React.FC<ExchangeRateInfoProps> = ({
   exchangeRate,

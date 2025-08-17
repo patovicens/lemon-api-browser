@@ -5,16 +5,7 @@ import { FIAT_CURRENCY_NAMES } from '../utils/constants';
 const COINGECKO_BASE_URL = 'https://api.coingecko.com/api/v3';
 const COINGECKO_API_KEY = 'CG-SGfJJPkMJBneFhqP3miR77US';
 
-class CryptoApiError extends Error {
-  constructor(
-    message: string, 
-    public status?: number,
-    public code?: 'RATE_LIMIT' | 'NOT_FOUND' | 'SERVER_ERROR' | 'NETWORK_ERROR'
-  ) {
-    super(message);
-    this.name = 'CryptoApiError';
-  }
-}
+import { SearchCoin, SearchResponse, createCryptoApiError } from '../types/crypto';
 
 const createHeaders = () => {
   const headers: Record<string, string> = {
@@ -32,7 +23,7 @@ const handleResponse = async (response: Response) => {
   if (!response.ok) {
     if (response.status === 429) {
       const retryAfter = response.headers.get('retry-after');
-      throw new CryptoApiError(
+      throw createCryptoApiError(
         `Rate limit exceeded. ${retryAfter ? `Retry after ${retryAfter} seconds.` : ''}`,
         response.status,
         'RATE_LIMIT'
@@ -42,7 +33,7 @@ const handleResponse = async (response: Response) => {
       : response.status === 404 ? 'NOT_FOUND'
       : undefined;
       
-    throw new CryptoApiError(
+    throw createCryptoApiError(
       `API request failed: ${response.status} ${response.statusText}`,
       response.status,
       code
@@ -85,10 +76,10 @@ export const cryptoApi = {
       });
       return await handleResponse(response);
     } catch (error) {
-      if (error instanceof CryptoApiError) {
+      if (error instanceof Error && 'code' in error) {
         throw error;
       }
-      throw new CryptoApiError(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw createCryptoApiError(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   },
 
@@ -102,10 +93,10 @@ export const cryptoApi = {
       const response = await fetch(url, {
         headers: createHeaders(),
       });
-      const searchData = await handleResponse(response);
+      const searchData = await handleResponse(response) as SearchResponse;
       
       if (searchData.coins && searchData.coins.length > 0) {
-        const coinIds = searchData.coins.slice(0, 20).map((coin: any) => coin.id).join(',');
+        const coinIds = searchData.coins.slice(0, 20).map((coin: SearchCoin) => coin.id).join(',');
         return await cryptoApi.getCryptoList({ ids: coinIds });
       }
       
@@ -126,15 +117,15 @@ export const cryptoApi = {
       const data = await handleResponse(response);
       
       if (!data || data.length === 0) {
-        throw new CryptoApiError(`Cryptocurrency with id '${id}' not found`, 404);
+        throw createCryptoApiError(`Cryptocurrency with id '${id}' not found`, 404);
       }
       
       return data[0];
     } catch (error) {
-      if (error instanceof CryptoApiError) {
+      if (error instanceof Error && 'code' in error) {
         throw error;
       }
-      throw new CryptoApiError(`Failed to fetch crypto: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw createCryptoApiError(`Failed to fetch crypto: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   },
 
@@ -158,7 +149,7 @@ export const cryptoApi = {
       fiatCurrency = fromCurrency;
       shouldInvert = true;
     } else {
-      throw new CryptoApiError(`Invalid currency pair: ${fromCurrency} to ${toCurrency}. One must be crypto, one must be fiat.`);
+      throw createCryptoApiError(`Invalid currency pair: ${fromCurrency} to ${toCurrency}. One must be crypto, one must be fiat.`);
     }
     
     const url = `${COINGECKO_BASE_URL}/simple/price?ids=${cryptoId}&vs_currencies=${fiatCurrency}`;
@@ -171,7 +162,7 @@ export const cryptoApi = {
       
       if (!data || !data[cryptoId] || typeof data[cryptoId][fiatCurrency] !== 'number') {
         console.error('Invalid API response structure:', data);
-        throw new CryptoApiError(`Exchange rate not available for ${fromCurrency} to ${toCurrency}`, 404);
+        throw createCryptoApiError(`Exchange rate not available for ${fromCurrency} to ${toCurrency}`, 404);
       }
       
       const rate = data[cryptoId][fiatCurrency];
@@ -181,12 +172,11 @@ export const cryptoApi = {
       
       return finalRate;
     } catch (error) {
-      if (error instanceof CryptoApiError) {
+      if (error instanceof Error && 'code' in error) {
         throw error;
       }
-      throw new CryptoApiError(`Failed to fetch exchange rate: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw createCryptoApiError(`Failed to fetch exchange rate: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   },
 };
 
-export { CryptoApiError };

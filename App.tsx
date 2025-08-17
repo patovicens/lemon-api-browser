@@ -7,6 +7,7 @@ import { RateLimitProvider } from './src/contexts/RateLimitContext';
 import { HomeProvider } from './src/contexts/HomeContext';
 import { ExchangeProvider } from './src/contexts/ExchangeContext';
 import { ThemeProvider } from './src/contexts/ThemeContext';
+import { ScannerProvider } from './src/contexts/ScannerContext';
 import { configureGoogleSignIn } from './src/utils/googleAuth';
 import GlobalStatusBar from './src/components/common/GlobalStatusBar';
 
@@ -32,9 +33,11 @@ const App = () => {
           <RateLimitProvider>
             <HomeProvider>
               <ExchangeProvider>
-                <GestureHandlerRootView>
-                  <AppNavigator />
-                </GestureHandlerRootView>
+                <ScannerProvider>
+                  <GestureHandlerRootView>
+                    <AppNavigator />
+                  </GestureHandlerRootView>
+                </ScannerProvider>
               </ExchangeProvider>
             </HomeProvider>
           </RateLimitProvider>

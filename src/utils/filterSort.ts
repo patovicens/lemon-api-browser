@@ -1,6 +1,7 @@
 import { CryptoCurrency } from '../types/crypto';
 import { SortOption, FilterOption } from '../components/home/FilterSortBar';
 
+type CryptoValue = string | number | null | undefined | { times: number; currency: string; percentage: number };
 
 // ** Client-side Sorting and Filtering 
 //  since CoinGecko API doesn't support all sorting and filtering options
@@ -10,15 +11,22 @@ export const sortCryptocurrencies = (cryptos: CryptoCurrency[], sort: SortOption
   const validCryptos = cryptos.filter(crypto => crypto && crypto.id && crypto.name);
   
   return [...validCryptos].sort((a, b) => {
-    let aValue: any = a[sort.key as keyof CryptoCurrency];
-    let bValue: any = b[sort.key as keyof CryptoCurrency];
+    let aValue: CryptoValue = a[sort.key as keyof CryptoCurrency];
+    let bValue: CryptoValue = b[sort.key as keyof CryptoCurrency];
 
     if (aValue === null || aValue === undefined) aValue = Infinity;
     if (bValue === null || bValue === undefined) bValue = Infinity;
 
+    if (typeof aValue === 'object' && aValue !== null && 'percentage' in aValue) {
+      aValue = (aValue as { percentage: number }).percentage;
+    }
+    if (typeof bValue === 'object' && bValue !== null && 'percentage' in bValue) {
+      bValue = (bValue as { percentage: number }).percentage;
+    }
+
     if (typeof aValue === 'string') {
       aValue = aValue.toLowerCase();
-      bValue = bValue.toLowerCase();
+      bValue = typeof bValue === 'string' ? bValue.toLowerCase() : '';
     }
 
     if (typeof aValue === 'number' && typeof bValue === 'number') {

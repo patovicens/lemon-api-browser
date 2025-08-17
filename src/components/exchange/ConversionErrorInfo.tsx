@@ -3,10 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { ThemeColors } from '../../theme';
 
-interface ConversionErrorInfoProps {
-  error?: string;
-  conversionError?: string;
-}
+import { ConversionErrorInfoProps } from '../../types/exchange';
 
 const ConversionErrorInfo: React.FC<ConversionErrorInfoProps> = ({
   error,

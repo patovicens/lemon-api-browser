@@ -36,6 +36,7 @@ export const colors = {
   warningLight: '#fef3c7',
   warningDark: '#92400e',
   info: '#3b82f6',
+  infoLight: '#dbeafe',
   
   border: '#e0e0e0',
   borderLight: '#f0f0f0',
@@ -48,6 +49,17 @@ export const colors = {
   statusBarDark: '#000000',
   
   opacityBlack: 'rgba(0, 0, 0, 0.5)',
+
+  // Wallet type colors
+  walletBTC: '#F7931A',
+  walletETH: '#627EEA',
+  walletLTC: '#A6A9AA',
+  walletBCH: '#0AC18E',
+  walletXRP: '#23292F',
+  walletADA: '#0033AD',
+  walletDOT: '#E6007A',
+  walletLINK: '#2A5ADA',
+  walletUnknown: '#6B7280',
 } as const;
 
 export type ColorKey = keyof typeof colors;

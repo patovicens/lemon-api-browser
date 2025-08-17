@@ -3,10 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ThemeColors } from '../../theme';
 import { useTheme } from '../../contexts/ThemeContext';
 
-interface ErrorStateProps {
-  error: Error | null;
-  onRetry: () => void;
-}
+import { ErrorStateProps } from '../../types/common';
 
 const ErrorState: React.FC<ErrorStateProps> = ({ error, onRetry }) => {
   const { colors } = useTheme();

@@ -15,26 +15,7 @@ import { faSort, faFilter, faChevronDown, faCheck, faArrowUp, faArrowDown } from
 import { useTheme } from '../../contexts/ThemeContext';
 import { ThemeColors } from '../../theme';
 
-export interface SortOption {
-  key: string;
-  label: string;
-  direction: 'asc' | 'desc';
-}
-
-export interface FilterOption {
-  key: string;
-  label: string;
-  value: string | number | boolean | { min: number; max: number };
-}
-
-interface FilterSortBarProps {
-  onSortChange: (sort: SortOption) => void;
-  onFilterChange: (filters: FilterOption[]) => void;
-  currentSort: SortOption;
-  currentFilters: FilterOption[];
-  isVisible?: boolean;
-  onAnimationComplete?: () => void;
-}
+import {  FilterOption, FilterSortBarProps } from '../../types/home';
 
 const SORT_OPTIONS = [
   { key: 'market_cap', label: 'Market Cap' },

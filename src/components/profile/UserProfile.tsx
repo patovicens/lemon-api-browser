@@ -6,15 +6,15 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import { AuthUser } from '../../types/auth';
-import { colors } from '../../theme';
+import { ThemeColors } from '../../theme';
 
-interface UserProfileProps {
-  user: AuthUser;
-  onLogout: () => void;
-}
+import { UserProfileProps } from '../../types/profile';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const UserProfile: React.FC<UserProfileProps> = ({ user, onLogout }) => {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -41,11 +41,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onLogout }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.themeSurface,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.themeBorder,
   },
   header: {
     flexDirection: 'row',
@@ -69,13 +69,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.lemon,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   avatarText: {
-    color: colors.surface,
+    color: colors.themeText,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -85,11 +85,11 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.textPrimary,
+    color: colors.themeText,
   },
   userEmail: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.themeTextSecondary,
     marginTop: 2,
   },
   logoutButton: {
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   logoutButtonText: {
-    color: colors.surface,
+    color: colors.themeSurface,
     fontSize: 14,
     fontWeight: '600',
   },

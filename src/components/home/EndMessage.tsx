@@ -3,13 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { ThemeColors } from '../../theme';
 import { useTheme } from '../../contexts/ThemeContext';
 
-interface EndMessageProps {
-  hasSearchQuery: boolean;
-  isFiltering: boolean;
-  isFetchingNextPage: boolean;
-  displayListLength: number;
-  hasNextPage: boolean;
-}
+import { EndMessageProps } from '../../types/home';
 
 const EndMessage: React.FC<EndMessageProps> = ({
   hasSearchQuery,
@@ -21,7 +15,6 @@ const EndMessage: React.FC<EndMessageProps> = ({
   const { colors } = useTheme();
   const styles = createStyles(colors);
 
-  // Show loading message when fetching next page (only for normal browsing)
   if (isFetchingNextPage && !isFiltering) {
     return (
       <View style={styles.container}>
@@ -53,7 +46,6 @@ const EndMessage: React.FC<EndMessageProps> = ({
     );
   }
   
-  // For search results
   if (hasSearchQuery && displayListLength > 0) {
     return (
       <View style={styles.container}>
@@ -63,7 +55,6 @@ const EndMessage: React.FC<EndMessageProps> = ({
     );
   }
   
-  // For normal browsing (no filters, no search)
   if (!hasNextPage && displayListLength > 0 && !hasSearchQuery && !isFiltering) {
     return (
       <View style={styles.container}>

@@ -48,3 +48,56 @@ export interface CryptoListResponse {
   page: number;
   per_page: number;
 }
+
+export type WalletType = 'BTC' | 'ETH' | 'LTC' | 'BCH' | 'XRP' | 'ADA' | 'DOT' | 'LINK' | 'UNKNOWN';
+
+export interface WalletScanResult {
+  address: string;
+  type: WalletType;
+  timestamp: number;
+  isFavorite: boolean;
+}
+
+export interface ScannedWallet {
+  id: string;
+  address: string;
+  type: WalletType;
+  timestamp: number;
+  isFavorite: boolean;
+  notes?: string;
+}
+
+export interface WalletAddress {
+  address: string;
+  type: WalletType;
+}
+
+export interface SearchCoin {
+  id: string;
+  name: string;
+  symbol: string;
+  market_cap_rank: number;
+}
+
+export interface SearchResponse {
+  coins: SearchCoin[];
+  categories: Array<{ id: number; name: string }>;
+  exchanges: Array<{ id: string; name: string }>;
+}
+
+export interface CryptoApiError extends Error {
+  status?: number;
+  code?: 'RATE_LIMIT' | 'NOT_FOUND' | 'SERVER_ERROR' | 'NETWORK_ERROR';
+}
+
+export const createCryptoApiError = (
+  message: string,
+  status?: number,
+  code?: 'RATE_LIMIT' | 'NOT_FOUND' | 'SERVER_ERROR' | 'NETWORK_ERROR'
+): CryptoApiError => {
+  const error = new Error(message) as CryptoApiError;
+  error.name = 'CryptoApiError';
+  error.status = status;
+  error.code = code;
+  return error;
+};

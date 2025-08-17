@@ -1,49 +1,34 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../contexts/ThemeContext';
-import { ThemeColors } from '../theme';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import QRScanner from '../components/scanner/QRScanner';
+import { WalletScanResult } from '../types/crypto';
 
-const ScannerScreen: React.FC = () => {
-  const { colors } = useTheme();
-  const styles = createStyles(colors);
-
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>QR Scanner</Text>
-        <Text style={styles.subtitle}>Coming soon...</Text>
-      </View>
-    </SafeAreaView>
-  );
+type ScannerStackParamList = {
+  ScannerMain: undefined;
+  ScanResult: { scanResult: WalletScanResult };
+  ScanHistory: undefined;
 };
 
-const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.themeBackground,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.themeText,
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.themeTextSecondary,
-  },
-});
+type ScannerScreenNavigationProp = StackNavigationProp<ScannerStackParamList, 'ScannerMain'>;
+
+const ScannerScreen: React.FC = () => {
+  const navigation = useNavigation<ScannerScreenNavigationProp>();
+
+  const handleScanResult = (result: WalletScanResult) => {
+    navigation.navigate('ScanResult', { scanResult: result });
+  };
+
+  const handleShowHistory = () => {
+    navigation.navigate('ScanHistory');
+  };
+
+  return (
+    <QRScanner
+      onScanResult={handleScanResult}
+      onShowHistory={handleShowHistory}
+    />
+  );
+};
 
 export default ScannerScreen;

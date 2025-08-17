@@ -7,14 +7,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import UserProfile from '../components/profile/UserProfile';
-import { AuthUser } from '../types/auth';
 import { ThemeColors } from '../theme';
 import { useTheme } from '../contexts/ThemeContext';
 
-interface ProfileScreenProps {
-  user: AuthUser;
-  onLogout: () => void;
-}
+import { ProfileScreenProps } from '../types/profile';
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, onLogout }) => {
   const { colors } = useTheme();

@@ -3,11 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ThemeColors } from '../../theme';
 import { useTheme } from '../../contexts/ThemeContext';
 
-interface EmptyStateProps {
-  searchQuery: string;  
-  isSearching: boolean;
-  onRetry: () => void;
-}
+import { EmptyStateProps } from '../../types/home';
 
 const EmptyState: React.FC<EmptyStateProps> = ({ searchQuery, isSearching, onRetry }) => {
   const { colors } = useTheme();

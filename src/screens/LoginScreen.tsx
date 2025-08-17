@@ -34,15 +34,15 @@ const LoginScreen: React.FC = () => {
       const user = await signIn();
       console.log('Google Sign-In successful:', user);
       handleLogin(user);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Google Sign-In error:', error);
       
-      if (error.message === 'Sign in was cancelled') {
+      if (error instanceof Error && error.message === 'Sign in was cancelled') {
         console.log('User cancelled sign-in - staying on login screen');
         return; 
       }
       
-      const errorMessage = error.message || 'An unexpected error occurred during sign-in';
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred during sign-in';
       console.log('Showing error alert:', errorMessage);
       Alert.alert('Sign In Error', errorMessage);
     } finally {

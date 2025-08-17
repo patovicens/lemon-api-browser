@@ -2,9 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { colors } from '../../theme';
 
-interface RateLimitAlertProps {
-  onRetry: () => void;
-}
+import { RateLimitAlertProps } from '../../types/common';
 
 const RateLimitAlert: React.FC<RateLimitAlertProps> = ({ onRetry }) => {
   return (

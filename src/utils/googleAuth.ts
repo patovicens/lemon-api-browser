@@ -1,5 +1,10 @@
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import { storeAuthSession, removeAuthSession, AuthUser } from './auth';
+import { AuthUser } from '../types/auth';
+import { storeAuthSession, removeAuthSession } from './auth';
+
+interface GoogleSignInError extends Error {
+  code?: number;
+}
 
 export const configureGoogleSignIn = () => {
   GoogleSignin.configure({
@@ -42,23 +47,25 @@ export const signIn = async (): Promise<AuthUser> => {
     } else {
       throw new Error('No ID token received from Google Sign-In');
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const googleError = error as GoogleSignInError;
     console.error('Google Sign-In error details:', {
-      code: error.code,
-      message: error.message,
+      code: googleError.code,
+      message: googleError.message,
       fullError: error
     });
     
-    if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+    if (googleError.code && googleError.code === Number(statusCodes.SIGN_IN_CANCELLED)) {
       throw new Error('Sign in was cancelled');
-    } else if (error.code === statusCodes.IN_PROGRESS) {
+    } else if (googleError.code && googleError.code === Number(statusCodes.IN_PROGRESS)) {
       throw new Error('Sign in is already in progress');
-    } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+    } else if (googleError.code && googleError.code === Number(statusCodes.PLAY_SERVICES_NOT_AVAILABLE)) {
       throw new Error('Google Play Services not available on this device');
-    } else if (error.code === statusCodes.SIGN_IN_REQUIRED) {
+    } else if (googleError.code && googleError.code === Number(statusCodes.SIGN_IN_REQUIRED)) {
       throw new Error('Sign in required - please try again');
     } else {
-      throw new Error(`Sign in failed: ${error.message || 'Unknown error occurred'}`);
+      const errorMessage = googleError.message || 'Unknown error occurred';
+      throw new Error(`Sign in failed: ${errorMessage}`);
     }
   }
 };
