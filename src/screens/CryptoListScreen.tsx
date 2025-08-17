@@ -16,7 +16,7 @@ import FilterSortBar from '../components/home/FilterSortBar';
 import RateLimitAlert from '../components/common/RateLimitAlert';
 import EndMessage from '../components/home/EndMessage';
 import EmptyState from '../components/home/EmptyState';
-import ErrorState from '../components/home/ErrorState';
+import ErrorState from '../components/common/ErrorState';
 import { useCryptoList } from '../contexts/CryptoListContext';
 import { useRateLimit } from '../contexts/RateLimitContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -178,8 +178,7 @@ const CryptoListScreen: React.FC = () => {
           />
         )}
 
-        {error && !displayList.length ? (
-          renderErrorState()
+        {error && !isRateLimited ? (renderErrorState()
         ) : (
           <FlashList
             key={`list-${currentSort?.key || 'none'}-${currentSort?.direction || 'none'}-${listKey}`}

@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { cryptoApi } from '../services/cryptoApi';
 import { getSupportedFiatCurrencies } from '../utils/constants';
+import { useQueryErrorConfig } from '../utils/queryErrorConfig';
 
 export const useGetExchangeRates = (fromCurrency: string, toCurrency: string) => {
+  const queryErrorConfig = useQueryErrorConfig();
   const {
     data: cryptoCurrencies = [],
     isLoading: cryptoLoading,
@@ -12,8 +14,7 @@ export const useGetExchangeRates = (fromCurrency: string, toCurrency: string) =>
     queryKey: ['cryptoCurrencies'],
     queryFn: () => cryptoApi.getCryptoList({ per_page: 50 }),
     staleTime: 15 * 1000,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    ...queryErrorConfig,
   });
 
   const {
@@ -40,8 +41,7 @@ export const useGetExchangeRates = (fromCurrency: string, toCurrency: string) =>
     },
     enabled: Boolean(fromCurrency && toCurrency),
     staleTime: 15 * 1000,
-    retry: false,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    ...queryErrorConfig,
   });
 
   const retry = async () => {

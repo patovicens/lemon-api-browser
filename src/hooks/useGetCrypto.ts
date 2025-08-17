@@ -2,7 +2,7 @@ import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { cryptoApi } from '../services/cryptoApi';
 import { CryptoListParams } from '../types/crypto';
 import { SortOption } from '../components/home/FilterSortBar';
-import { useRateLimit } from '../contexts/RateLimitContext';
+import { useQueryErrorConfig } from '../utils/queryErrorConfig';
 
 export const useCryptoSearch = (query: string) => {
   const enabled = query.trim().length > 0;
@@ -17,7 +17,7 @@ export const useCryptoSearch = (query: string) => {
 };
 
 export const useCryptoInfiniteList = (params: CryptoListParams = {}, sort?: SortOption) => {
-  const { handle429Error } = useRateLimit();
+  const queryErrorConfig = useQueryErrorConfig();
   
   const getApiOrder = (sortOption?: SortOption): CryptoListParams['order'] | undefined => {
     if (!sortOption) return undefined;
@@ -59,17 +59,6 @@ export const useCryptoInfiniteList = (params: CryptoListParams = {}, sort?: Sort
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
-    retry: (failureCount, error: any) => {
-      if (error?.status === 429 || error?.message?.includes('429')) {
-        handle429Error();
-        return false;
-      }
-      
-      return failureCount < 3;
-    },
-    retryDelay: (attemptIndex) => {
-      // Exponential backoff: 1s, 2s, 4s
-      return Math.min(1000 * 2 ** attemptIndex, 30000);
-    },
+    ...queryErrorConfig,
   });
 };

@@ -6,7 +6,11 @@ const COINGECKO_BASE_URL = 'https://api.coingecko.com/api/v3';
 const COINGECKO_API_KEY = 'CG-SGfJJPkMJBneFhqP3miR77US';
 
 class CryptoApiError extends Error {
-  constructor(message: string, public status?: number) {
+  constructor(
+    message: string, 
+    public status?: number,
+    public code?: 'RATE_LIMIT' | 'NOT_FOUND' | 'SERVER_ERROR' | 'NETWORK_ERROR'
+  ) {
     super(message);
     this.name = 'CryptoApiError';
   }
@@ -17,7 +21,7 @@ const createHeaders = () => {
     'Content-Type': 'application/json',
   };
   
-  if (COINGECKO_API_KEY && COINGECKO_API_KEY.trim() !== '') {
+  if (typeof COINGECKO_API_KEY === 'string' && COINGECKO_API_KEY.trim() !== '') {
     headers['x-cg-demo-api-key'] = COINGECKO_API_KEY;
   }
   
@@ -30,12 +34,18 @@ const handleResponse = async (response: Response) => {
       const retryAfter = response.headers.get('retry-after');
       throw new CryptoApiError(
         `Rate limit exceeded. ${retryAfter ? `Retry after ${retryAfter} seconds.` : ''}`,
-        response.status
+        response.status,
+        'RATE_LIMIT'
       );
     }
+    const code = response.status >= 500 ? 'SERVER_ERROR' 
+      : response.status === 404 ? 'NOT_FOUND'
+      : undefined;
+      
     throw new CryptoApiError(
       `API request failed: ${response.status} ${response.statusText}`,
-      response.status
+      response.status,
+      code
     );
   }
   return response.json();

@@ -11,14 +11,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BottomSheetModal, BottomSheetModalProvider, BottomSheetBackdrop, BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
-
 import { useTheme } from '../contexts/ThemeContext';
-import { useRateLimit } from '../contexts/RateLimitContext';
 import { useExchange } from '../contexts/ExchangeContext';
 import { ThemeColors } from '../theme';
 import CurrencySelector from '../components/exchange/CurrencySelector';
 import LoadingScreen from '../components/common/LoadingScreen';
-import RateLimitAlert from '../components/common/RateLimitAlert';
+import ErrorState from '../components/common/ErrorState';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faArrowsAltV, faChevronDown, faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 import LastUpdated from '../components/exchange/LastUpdated';
@@ -29,7 +27,8 @@ import { useFocusEffect } from '@react-navigation/native';
 // TODO: Add proper toast message to manual refresh
 const ExchangeScreen: React.FC = () => {
   const { colors } = useTheme();
-  const { isRateLimited, handle429Error, resetRateLimit } = useRateLimit();
+  const styles = createStyles(colors);
+
   const {
     state,
     exchangeRate,
@@ -46,7 +45,6 @@ const ExchangeScreen: React.FC = () => {
     refreshRates,
     retry
   } = useExchange();
-  const styles = createStyles(colors);
 
   useFocusEffect(
     useCallback(() => {
@@ -76,8 +74,6 @@ const ExchangeScreen: React.FC = () => {
       pressBehavior="close"
     />
   ), []);
-
-
 
   const openCurrencySelector = (type: 'from' | 'to') => {
     setSelectorType(type);
@@ -110,37 +106,14 @@ const ExchangeScreen: React.FC = () => {
     return fiatId.toUpperCase();
   };
 
-
-
   if (isLoading) {
     return <LoadingScreen message="Loading exchange data..." />;
-  }
-
-  if (error && error.includes('429')) {
-    handle429Error();
-  }
-
-  if (isRateLimited) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <RateLimitAlert onRetry={() => {
-          resetRateLimit();
-          retry();
-        }} />
-      </SafeAreaView>
-    );
   }
 
   if (error) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Error</Text>
-          <Text style={styles.errorMessage}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={retry}>
-            <Text style={styles.retryButtonText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
+        <ErrorState error={{ message: error } as Error} onRetry={retry} />
       </SafeAreaView>
     );
   }
@@ -698,35 +671,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     color: colors.warning,
     marginTop: 8,
   },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  errorTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.error,
-    marginBottom: 16,
-  },
-  errorMessage: {
-    fontSize: 16,
-    color: colors.themeTextSecondary,
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  retryButton: {
-    backgroundColor: colors.lemon,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.darkBackground,
-  },
+
   errorInfo: {
     marginHorizontal: 20,
     marginBottom: 20,

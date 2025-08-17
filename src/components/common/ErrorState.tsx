@@ -33,27 +33,27 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: 20,
   },
   errorTitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: colors.themeText,
-    marginBottom: 8,
+    color: colors.error,
+    marginBottom: 16,
   },
   errorMessage: {
-    fontSize: 14,
+    fontSize: 16,
     color: colors.themeTextSecondary,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
   },
   retryButton: {
-    backgroundColor: colors.themeBorderLight,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    backgroundColor: colors.lemon,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
     borderRadius: 8,
   },
   retryButtonText: {
-    color: colors.themeText,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
+    color: colors.darkBackground,
   },
 });
 
