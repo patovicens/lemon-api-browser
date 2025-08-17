@@ -1,5 +1,11 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  interpolate,
+} from 'react-native-reanimated';
 import { useTheme } from '../../contexts/ThemeContext';
 import { ThemeColors } from '../../theme';
 
@@ -14,36 +20,80 @@ const ConversionDirectionToggle: React.FC<ConversionDirectionToggleProps> = ({
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
+  const [containerWidth, setContainerWidth] = useState(0);
+  
+  const animationValue = useSharedValue(direction === 'fiat-to-crypto' ? 1 : 0);
+
+  useEffect(() => {
+    animationValue.value = withSpring(direction === 'fiat-to-crypto' ? 1 : 0, {
+      damping: 15,
+      stiffness: 400,
+    });
+  }, [direction, animationValue]);
+
+  const handleTap = (newDirection: 'crypto-to-fiat' | 'fiat-to-crypto') => {
+    const targetValue = newDirection === 'fiat-to-crypto' ? 1 : 0;
+    animationValue.value = withSpring(targetValue, {
+      damping: 15,
+      stiffness: 400,
+    });
+    
+    onDirectionChange(newDirection);
+  };
+
+  const animatedIndicatorStyle = useAnimatedStyle(() => {
+    const indicatorWidth = containerWidth > 0 ? (containerWidth - 8) / 2 : 0;
+    const translateX = interpolate(animationValue.value, [0, 1], [0, indicatorWidth]); 
+    
+    return {
+      transform: [{ translateX }],
+    };
+  });
+
+  const animatedTextStyle1 = useAnimatedStyle(() => {
+    const opacity = interpolate(animationValue.value, [0, 1], [1, 0.6]);
+    return { opacity };
+  });
+
+  const animatedTextStyle2 = useAnimatedStyle(() => {
+    const opacity = interpolate(animationValue.value, [0, 1], [0.6, 1]);
+    return { opacity };
+  });
 
   return (
-    <View style={styles.directionToggle}>
+    <View 
+      style={styles.directionToggle}
+      onLayout={(event) => {
+        const { width } = event.nativeEvent.layout;
+        setContainerWidth(width);
+      }}
+    >
+      <Animated.View style={[styles.activeIndicator, animatedIndicatorStyle]} />
+      
       <TouchableOpacity
-        style={[
-          styles.toggleButton,
-          direction === 'crypto-to-fiat' && styles.activeToggleButton
-        ]}
-        onPress={() => onDirectionChange('crypto-to-fiat')}
+        style={styles.toggleButton}
+        onPress={() => handleTap('crypto-to-fiat')}
       >
-        <Text style={[
+        <Animated.Text style={[
           styles.toggleButtonText,
-          direction === 'crypto-to-fiat' && styles.activeToggleButtonText
+          direction === 'crypto-to-fiat' && styles.activeToggleButtonText,
+          animatedTextStyle1
         ]}>
           Crypto → Fiat
-        </Text>
+        </Animated.Text>
       </TouchableOpacity>
+      
       <TouchableOpacity
-        style={[
-          styles.toggleButton,
-          direction === 'fiat-to-crypto' && styles.activeToggleButton
-        ]}
-        onPress={() => onDirectionChange('fiat-to-crypto')}
+        style={styles.toggleButton}
+        onPress={() => handleTap('fiat-to-crypto')}
       >
-        <Text style={[
+        <Animated.Text style={[
           styles.toggleButtonText,
-          direction === 'fiat-to-crypto' && styles.activeToggleButtonText
+          direction === 'fiat-to-crypto' && styles.activeToggleButtonText,
+          animatedTextStyle2
         ]}>
           Fiat → Crypto
-        </Text>
+        </Animated.Text>
       </TouchableOpacity>
     </View>
   );
@@ -52,10 +102,20 @@ const ConversionDirectionToggle: React.FC<ConversionDirectionToggleProps> = ({
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   directionToggle: {
     flexDirection: 'row',
-    marginHorizontal: 20,
+    marginHorizontal: 40,
     backgroundColor: colors.themeSurfaceLight,
     borderRadius: 12,
     padding: 4,
+    position: 'relative',
+  },
+  activeIndicator: {
+    position: 'absolute',
+    top: 4,
+    left: 4,
+    right: '50%',
+    bottom: 4,
+    backgroundColor: colors.lemon,
+    borderRadius: 8,
   },
   toggleButton: {
     flex: 1,
@@ -63,9 +123,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 8,
     alignItems: 'center',
+    zIndex: 1,
   },
   activeToggleButton: {
-    backgroundColor: colors.lemon,
+    backgroundColor: 'transparent',
   },
   toggleButtonText: {
     fontSize: 14,

@@ -7,6 +7,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BottomSheetModal, BottomSheetModalProvider, BottomSheetBackdrop, BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  cancelAnimation,
+} from 'react-native-reanimated';
 import { useTheme } from '../contexts/ThemeContext';
 import { useExchange } from '../contexts/ExchangeContext';
 import { ThemeColors } from '../theme';
@@ -55,6 +61,78 @@ const ExchangeScreen: React.FC = () => {
   const bottomSheetRef = useRef<BottomSheetModal | null>(null);
   const [selectorType, setSelectorType] = useState<'from' | 'to'>('from');
   const [currentTime, setCurrentTime] = useState(new Date());
+  
+  const fromSectionTranslateX = useSharedValue(0);
+  const toSectionTranslateX = useSharedValue(0);
+  const fromSectionOpacity = useSharedValue(1);
+  const toSectionOpacity = useSharedValue(1);
+
+  const animatedFromSectionStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: fromSectionTranslateX.value }],
+      opacity: fromSectionOpacity.value,
+    };
+  });
+
+  const animatedToSectionStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: toSectionTranslateX.value }],
+      opacity: toSectionOpacity.value,
+    };
+  });
+
+  const handleSwapWithAnimation = () => {
+    cancelAnimation(fromSectionTranslateX);
+    cancelAnimation(toSectionTranslateX);
+    cancelAnimation(fromSectionOpacity);
+    cancelAnimation(toSectionOpacity);
+    
+    const slideDirection = state.conversionDirection === 'crypto-to-fiat' ? 300 : -300;
+    
+    fromSectionTranslateX.value = withSpring(slideDirection, {
+      damping: 30,
+      stiffness: 300,
+    });
+    fromSectionOpacity.value = withSpring(0, {
+      damping: 30,
+      stiffness: 400,
+    });
+    
+    toSectionTranslateX.value = withSpring(-slideDirection, {
+      damping: 30,
+      stiffness: 300,
+    });
+    toSectionOpacity.value = withSpring(0, {
+      damping: 30,
+      stiffness: 400,
+    });
+    
+    setTimeout(() => {
+      handleSwapCurrencies();
+      
+      fromSectionTranslateX.value = slideDirection;
+      fromSectionOpacity.value = 0;
+      fromSectionTranslateX.value = withSpring(0, {
+        damping: 30,
+        stiffness: 300,
+      });
+      fromSectionOpacity.value = withSpring(1, {
+        damping: 30,
+        stiffness: 400,
+      });
+      
+      toSectionTranslateX.value = -slideDirection;
+      toSectionOpacity.value = 0;
+      toSectionTranslateX.value = withSpring(0, {
+        damping: 30,
+        stiffness: 300,
+      });
+      toSectionOpacity.value = withSpring(1, {
+        damping: 30,
+        stiffness: 400,
+      });
+    }, 200);
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -125,52 +203,65 @@ const ExchangeScreen: React.FC = () => {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <ConversionDirectionToggle 
             direction={state.conversionDirection}
-            onDirectionChange={handleSetConversionDirection}
+            onDirectionChange={(newDirection) => {
+              // Trigger the same slide animation when toggle is used
+              if (newDirection !== state.conversionDirection) {
+                handleSwapWithAnimation();
+              } else {
+                handleSetConversionDirection(newDirection);
+              }
+            }}
           />
 
           <View style={styles.header}>
             <Text style={styles.subtitle}>Only the first input is editable. Want the other way around? Hit the toggle or swap icon</Text>
           </View>
 
-          <CurrencyInputSection
-            label={state.conversionDirection === 'crypto-to-fiat' ? 'From (Crypto)' : 'From (Fiat)'}
-            direction={state.conversionDirection}
-            sectionType="from"
-            selectedCrypto={selectedCrypto}
-            selectedFiat={selectedFiat}
-            amount={state.fromAmount}
-            onAmountChange={(text) => {
-              const numericText = text.replace(/[^0-9.]/g, '');
-              const parts = numericText.split('.');
-              if (parts.length <= 2) {
-                handleAmountChange(numericText, 'fromAmount');
-              }
-            }}
-            onCurrencyPress={() => openCurrencySelector('from')}
-            onRefresh={retry}
-            isRefreshing={loadingStates.crypto}
-            showRefreshButton={state.conversionDirection === 'crypto-to-fiat' && !!selectedCrypto}
-            helpText="Type, change currency, or tap refresh to get fresh rates"
-          />
+          <View>
+            <Animated.View style={animatedFromSectionStyle}>
+              <CurrencyInputSection
+                label={state.conversionDirection === 'crypto-to-fiat' ? 'From (Crypto)' : 'From (Fiat)'}
+                direction={state.conversionDirection}
+                sectionType="from"
+                selectedCrypto={selectedCrypto}
+                selectedFiat={selectedFiat}
+                amount={state.fromAmount}
+                onAmountChange={(text) => {
+                  const numericText = text.replace(/[^0-9.]/g, '');
+                  const parts = numericText.split('.');
+                  if (parts.length <= 2) {
+                    handleAmountChange(numericText, 'fromAmount');
+                  }
+                }}
+                onCurrencyPress={() => openCurrencySelector('from')}
+                onRefresh={retry}
+                isRefreshing={loadingStates.crypto}
+                showRefreshButton={state.conversionDirection === 'crypto-to-fiat' && !!selectedCrypto}
+                helpText="Type, change currency, or tap refresh to get fresh rates"
+              />
+            </Animated.View>
 
-          <SwapButton 
-            onPress={handleSwapCurrencies}
-            isLoading={loadingStates.rate || loadingStates.refreshing}
-          />
+            <SwapButton 
+              onPress={handleSwapWithAnimation}
+              isLoading={loadingStates.rate || loadingStates.refreshing}
+            />
 
-          <CurrencyInputSection
-            label={state.conversionDirection === 'crypto-to-fiat' ? 'To (Fiat)' : 'To (Crypto)'}
-            direction={state.conversionDirection}
-            sectionType="to"
-            selectedCrypto={selectedCrypto}
-            selectedFiat={selectedFiat}
-            amount={state.toAmount ? formatNumber(state.toAmount, 
-              state.conversionDirection === 'crypto-to-fiat' ? 2 : 8
-            ) : ''}
-            onAmountChange={(text) => handleAmountChange(text, 'toAmount')}
-            onCurrencyPress={() => openCurrencySelector('to')}
-            editable={false}
-          />
+            <Animated.View style={animatedToSectionStyle}>
+              <CurrencyInputSection
+                label={state.conversionDirection === 'crypto-to-fiat' ? 'To (Fiat)' : 'To (Crypto)'}
+                direction={state.conversionDirection}
+                sectionType="to"
+                selectedCrypto={selectedCrypto}
+                selectedFiat={selectedFiat}
+                amount={state.toAmount ? formatNumber(state.toAmount, 
+                  state.conversionDirection === 'crypto-to-fiat' ? 2 : 8
+                ) : ''}
+                onAmountChange={(text) => handleAmountChange(text, 'toAmount')}
+                onCurrencyPress={() => openCurrencySelector('to')}
+                editable={false}
+              />
+            </Animated.View>
+          </View>
 
           {(exchangeRate || state.fromCurrency || state.toCurrency) && !rateError && (
             <ExchangeRateInfo
@@ -235,6 +326,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     fontSize: 14, 
     color: colors.themeTextTertiary,
     textAlign: 'center',
+  },
+  helpText: {
+    fontSize: 12,
+    color: colors.themeTextTertiary,
+    textAlign: 'center',
+    marginTop: 12,
+    paddingHorizontal: 30,
   },
 
 
