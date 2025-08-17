@@ -7,22 +7,22 @@ import {
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import CryptoListItem from '../components/home/CryptoListItem';
+import HomeListItem from '../components/home/HomeListItem';
 import { CryptoCurrency } from '../types/crypto';
 import LoadingScreen from '../components/common/LoadingScreen';
 
-import HomeHeader from '../components/header/HomeHeader';
+import HomeHeader from '../components/layout/HomeHeader';
 import FilterSortBar from '../components/home/FilterSortBar';
 import RateLimitAlert from '../components/common/RateLimitAlert';
 import EndMessage from '../components/home/EndMessage';
 import EmptyState from '../components/home/EmptyState';
 import ErrorState from '../components/common/ErrorState';
-import { useCryptoList } from '../contexts/CryptoListContext';
+import { useHomeList } from '../contexts/HomeContext';
 import { useRateLimit } from '../contexts/RateLimitContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { ThemeColors } from '../theme';
 
-const CryptoListScreen: React.FC = () => {
+const HomeScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isFiltersVisible, setIsFiltersVisible] = useState(false);
   const [shouldRenderFilters, setShouldRenderFilters] = useState(false);
@@ -50,7 +50,7 @@ const CryptoListScreen: React.FC = () => {
     setSort,
     setFilters,
     setQuery,
-  } = useCryptoList();
+  } = useHomeList();
   
   useEffect(() => {
     setListKey(prev => prev + 1);
@@ -79,7 +79,7 @@ const CryptoListScreen: React.FC = () => {
   }, []);
 
   const renderCryptoItem = useCallback(({ item }: { item: CryptoCurrency }) => (
-    <CryptoListItem crypto={item} onPress={handleCryptoPress} />
+    <HomeListItem crypto={item} onPress={handleCryptoPress} />
   ), [handleCryptoPress]);
 
   const keyExtractor = useCallback((item: CryptoCurrency) => {
@@ -222,4 +222,4 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
 });
 
 
-export default CryptoListScreen;
+export default HomeScreen;

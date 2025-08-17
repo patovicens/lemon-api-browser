@@ -2,6 +2,17 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+type RootStackParamList = {
+  Login: undefined;
+  MainApp: undefined;
+};
+
+type MainTabParamList = {
+  Home: undefined;
+  Exchange: undefined;
+  Scanner: undefined;
+};
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { 
   faCoins, 
@@ -10,7 +21,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import LoginScreen from '../screens/LoginScreen';
-import CryptoListScreen from '../screens/CryptoListScreen';
+import HomeScreen from '../screens/HomeScreen';
 import ExchangeScreen from '../screens/ExchangeScreen';
 import ScannerScreen from '../screens/ScannerScreen';
 
@@ -18,14 +29,14 @@ import LoadingScreen from '../components/common/LoadingScreen';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 
-const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<MainTabParamList>();
 
-const CryptoListTab = () => <CryptoListScreen />;
+const HomeTab = () => <HomeScreen />;
 const ExchangeTab = () => <ExchangeScreen />;
 const ScannerTab = () => <ScannerScreen />;
 
-const CryptoListIcon = ({ color, size }: { color: string; size: number }) => (
+const HomeIcon = ({ color, size }: { color: string; size: number }) => (
   <FontAwesomeIcon icon={faCoins} size={size} color={color} />
 );
 const ExchangeIcon = ({ color, size }: { color: string; size: number }) => (
@@ -41,6 +52,7 @@ const MainTabs = () => {
   
   return (
     <Tab.Navigator
+      id={undefined}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.lemon,
@@ -60,11 +72,11 @@ const MainTabs = () => {
       }}
     >
       <Tab.Screen 
-        name="CryptoList" 
-        component={CryptoListTab}
+        name="Home" 
+        component={HomeTab}
         options={{
-          title: 'Crypto List',
-          tabBarIcon: CryptoListIcon,
+          title: 'Home',
+          tabBarIcon: HomeIcon,
         }}
       />
       <Tab.Screen 
@@ -97,7 +109,7 @@ const AppNavigator = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator id={undefined} screenOptions={{ headerShown: false }}>
         {!isAuthenticated ? (
           <Stack.Screen name="Login" component={LoginScreen} />
         ) : (

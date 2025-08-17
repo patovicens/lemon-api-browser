@@ -4,7 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AppNavigator from './src/navigation/AppNavigator';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { RateLimitProvider } from './src/contexts/RateLimitContext';
-import { CryptoListProvider } from './src/contexts/CryptoListContext';
+import { HomeProvider } from './src/contexts/HomeContext';
 import { ExchangeProvider } from './src/contexts/ExchangeContext';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import { configureGoogleSignIn } from './src/utils/googleAuth';
@@ -30,13 +30,13 @@ const App = () => {
         <ThemeProvider>
           <GlobalStatusBar />
           <RateLimitProvider>
-            <CryptoListProvider>
+            <HomeProvider>
               <ExchangeProvider>
                 <GestureHandlerRootView>
                   <AppNavigator />
                 </GestureHandlerRootView>
               </ExchangeProvider>
-            </CryptoListProvider>
+            </HomeProvider>
           </RateLimitProvider>
         </ThemeProvider>
       </QueryClientProvider>

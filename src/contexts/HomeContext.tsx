@@ -4,8 +4,7 @@ import { useRateLimit } from './RateLimitContext';
 import { sortCryptocurrencies, filterCryptocurrencies } from '../utils/filterSort';
 import { SortOption, FilterOption } from '../components/home/FilterSortBar';
 
-interface CryptoListContextType {
-  // Data
+interface HomeContextType {
   displayList: any[];
   isLoading: boolean;
   error: any;
@@ -14,13 +13,9 @@ interface CryptoListContextType {
   isRateLimited: boolean;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
-  
-  // State
   currentSort: SortOption;
   currentFilters: FilterOption[];
   debouncedQuery: string;
-  
-  // Actions
   refreshing: boolean;
   handleRefresh: () => Promise<void>;
   handleLoadMore: () => void;
@@ -30,13 +25,13 @@ interface CryptoListContextType {
   setQuery: (query: string) => void;
 }
 
-const CryptoListContext = createContext<CryptoListContextType | undefined>(undefined);
+const HomeContext = createContext<HomeContextType | undefined>(undefined);
 
-interface CryptoListProviderProps {
+interface HomeProviderProps {
   children: ReactNode;
 }
 
-export const CryptoListProvider: React.FC<CryptoListProviderProps> = ({ children }) => {
+export const HomeProvider: React.FC<HomeProviderProps> = ({ children }) => {
   const { isRateLimited } = useRateLimit();
   
   const [currentSort, setCurrentSort] = useState<SortOption>({ key: 'market_cap', label: 'Market Cap', direction: 'desc' });
@@ -158,8 +153,7 @@ export const CryptoListProvider: React.FC<CryptoListProviderProps> = ({ children
     setDebouncedQuery(query);
   }, []);
 
-  const value: CryptoListContextType = {
-    // Data
+  const value: HomeContextType = {
     displayList,
     isLoading,
     error,
@@ -168,13 +162,9 @@ export const CryptoListProvider: React.FC<CryptoListProviderProps> = ({ children
     isRateLimited,
     hasNextPage,
     isFetchingNextPage,
-    
-    // State
     currentSort,
     currentFilters,
     debouncedQuery,
-    
-    // Actions
     refreshing,
     handleRefresh,
     handleLoadMore,
@@ -185,16 +175,16 @@ export const CryptoListProvider: React.FC<CryptoListProviderProps> = ({ children
   };
 
   return (
-    <CryptoListContext.Provider value={value}>
+    <HomeContext.Provider value={value}>
       {children}
-    </CryptoListContext.Provider>
+    </HomeContext.Provider>
   );
 };
 
-export const useCryptoList = (): CryptoListContextType => {
-  const context = useContext(CryptoListContext);
+export const useHomeList = (): HomeContextType => {
+  const context = useContext(HomeContext);
   if (context === undefined) {
-    throw new Error('useCryptoList must be used within a CryptoListProvider');
+    throw new Error('useHomeList must be used within a HomeProvider');
   }
   return context;
 };

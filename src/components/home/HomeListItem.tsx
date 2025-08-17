@@ -10,12 +10,12 @@ import { CryptoCurrency } from '../../types/crypto';
 import { useTheme } from '../../contexts/ThemeContext';
 import { ThemeColors } from '../../theme';
 
-interface CryptoListItemProps {
+interface HomeListItemProps {
   crypto: CryptoCurrency;
   onPress?: (crypto: CryptoCurrency) => void;
 }
 
-const CryptoListItem: React.FC<CryptoListItemProps> = React.memo(({ crypto, onPress }) => {
+const HomeListItem: React.FC<HomeListItemProps> = React.memo(({ crypto, onPress }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
 
@@ -133,4 +133,4 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
 });
 
-export default CryptoListItem;
+export default HomeListItem;
