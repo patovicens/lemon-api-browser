@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useTheme } from '../../contexts/ThemeContext';
 import { ThemeColors } from '../../theme';
+import { ANIMATION_CONFIG } from '../../constants/animations';
 
 interface SwapButtonProps {
   onPress: () => void;
@@ -48,13 +49,13 @@ const SwapButton: React.FC<SwapButtonProps> = ({ onPress, isLoading = false }) =
     rotation.value = 0;
     
     scale.value = withSequence(
-      withSpring(0.9, { damping: 10, stiffness: 400 }),
-      withSpring(1, { damping: 10, stiffness: 400 })
+      withSpring(ANIMATION_CONFIG.VALUES.SCALE_PRESS, ANIMATION_CONFIG.SPRING.FAST),
+      withSpring(1, ANIMATION_CONFIG.SPRING.FAST)
     );
     
     rotation.value = withSequence(
-      withSpring(180, { damping: 15, stiffness: 300 }),
-      withSpring(360, { damping: 15, stiffness: 300 }, () => {
+      withSpring(ANIMATION_CONFIG.VALUES.ROTATION_HALF, ANIMATION_CONFIG.SPRING.MEDIUM),
+      withSpring(ANIMATION_CONFIG.VALUES.ROTATION_FULL, ANIMATION_CONFIG.SPRING.MEDIUM, () => {
         rotation.value = 0;
       })
     );

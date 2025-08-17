@@ -10,8 +10,6 @@ import { BottomSheetModal, BottomSheetModalProvider, BottomSheetBackdrop, Bottom
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
-  cancelAnimation,
 } from 'react-native-reanimated';
 import { useTheme } from '../contexts/ThemeContext';
 import { useExchange } from '../contexts/ExchangeContext';
@@ -26,6 +24,7 @@ import ExchangeRateInfo from '../components/exchange/ExchangeRateInfo';
 import ConversionErrorInfo from '../components/exchange/ConversionErrorInfo';
 import { formatNumber } from '../utils/formatting';
 import { useFocusEffect } from '@react-navigation/native';
+import { useExchangeAnimations } from '../hooks/useExchangeAnimations';
 
 // TODO: Add proper toast message to manual refresh
 const ExchangeScreen: React.FC = () => {
@@ -81,57 +80,20 @@ const ExchangeScreen: React.FC = () => {
     };
   });
 
-  const handleSwapWithAnimation = () => {
-    cancelAnimation(fromSectionTranslateX);
-    cancelAnimation(toSectionTranslateX);
-    cancelAnimation(fromSectionOpacity);
-    cancelAnimation(toSectionOpacity);
+  const { handleSwapWithAnimation } = useExchangeAnimations({
+    fromSectionTranslateX,
+    toSectionTranslateX,
+    fromSectionOpacity,
+    toSectionOpacity,
+    handleSwapCurrencies,
+    conversionDirection: state.conversionDirection,
+  });
+
+  const handleSwapWithAllAnimations = () => {
+    const newDirection = state.conversionDirection === 'crypto-to-fiat' ? 'fiat-to-crypto' : 'crypto-to-fiat';
+    handleSetConversionDirection(newDirection);
     
-    const slideDirection = state.conversionDirection === 'crypto-to-fiat' ? 300 : -300;
-    
-    fromSectionTranslateX.value = withSpring(slideDirection, {
-      damping: 30,
-      stiffness: 300,
-    });
-    fromSectionOpacity.value = withSpring(0, {
-      damping: 30,
-      stiffness: 400,
-    });
-    
-    toSectionTranslateX.value = withSpring(-slideDirection, {
-      damping: 30,
-      stiffness: 300,
-    });
-    toSectionOpacity.value = withSpring(0, {
-      damping: 30,
-      stiffness: 400,
-    });
-    
-    setTimeout(() => {
-      handleSwapCurrencies();
-      
-      fromSectionTranslateX.value = slideDirection;
-      fromSectionOpacity.value = 0;
-      fromSectionTranslateX.value = withSpring(0, {
-        damping: 30,
-        stiffness: 300,
-      });
-      fromSectionOpacity.value = withSpring(1, {
-        damping: 30,
-        stiffness: 400,
-      });
-      
-      toSectionTranslateX.value = -slideDirection;
-      toSectionOpacity.value = 0;
-      toSectionTranslateX.value = withSpring(0, {
-        damping: 30,
-        stiffness: 300,
-      });
-      toSectionOpacity.value = withSpring(1, {
-        damping: 30,
-        stiffness: 400,
-      });
-    }, 200);
+    handleSwapWithAnimation();
   };
 
   useEffect(() => {
@@ -242,7 +204,7 @@ const ExchangeScreen: React.FC = () => {
             </Animated.View>
 
             <SwapButton 
-              onPress={handleSwapWithAnimation}
+              onPress={handleSwapWithAllAnimations}
               isLoading={loadingStates.rate || loadingStates.refreshing}
             />
 

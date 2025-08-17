@@ -26,16 +26,16 @@ const ConversionDirectionToggle: React.FC<ConversionDirectionToggleProps> = ({
 
   useEffect(() => {
     animationValue.value = withSpring(direction === 'fiat-to-crypto' ? 1 : 0, {
-      damping: 15,
-      stiffness: 400,
+      damping: 30,
+      stiffness: 300,
     });
   }, [direction, animationValue]);
 
   const handleTap = (newDirection: 'crypto-to-fiat' | 'fiat-to-crypto') => {
     const targetValue = newDirection === 'fiat-to-crypto' ? 1 : 0;
     animationValue.value = withSpring(targetValue, {
-      damping: 15,
-      stiffness: 400,
+      damping: 30,
+      stiffness: 300,
     });
     
     onDirectionChange(newDirection);
