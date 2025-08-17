@@ -5,6 +5,7 @@ import AppNavigator from './src/navigation/AppNavigator';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { RateLimitProvider } from './src/contexts/RateLimitContext';
 import { CryptoListProvider } from './src/contexts/CryptoListContext';
+import { ExchangeProvider } from './src/contexts/ExchangeContext';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import { configureGoogleSignIn } from './src/utils/googleAuth';
 import GlobalStatusBar from './src/components/common/GlobalStatusBar';
@@ -30,9 +31,11 @@ const App = () => {
           <GlobalStatusBar />
           <RateLimitProvider>
             <CryptoListProvider>
-              <GestureHandlerRootView>
-                <AppNavigator />
-              </GestureHandlerRootView>
+              <ExchangeProvider>
+                <GestureHandlerRootView>
+                  <AppNavigator />
+                </GestureHandlerRootView>
+              </ExchangeProvider>
             </CryptoListProvider>
           </RateLimitProvider>
         </ThemeProvider>

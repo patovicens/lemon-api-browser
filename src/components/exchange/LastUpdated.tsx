@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleProp, Text, TextStyle } from 'react-native';
 
 interface LastUpdatedProps {
@@ -9,12 +9,15 @@ interface LastUpdatedProps {
 const LastUpdated: React.FC<LastUpdatedProps> = ({ lastFetchTime, style }) => {
   const [displayText, setDisplayText] = useState<string>('');
 
-  const getTimeAgo = (date: Date): string => {
+  const getTimeAgo = useCallback((date: Date): string => {
     const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
     
-    if (diffInMinutes < 1) {
+    if (diffInSeconds < 30) {
       return 'Just now';
+    } else if (diffInSeconds < 60) {
+      return `${diffInSeconds} seconds ago`;
     } else if (diffInMinutes === 1) {
       return '1 minute ago';
     } else if (diffInMinutes < 60) {
@@ -30,7 +33,7 @@ const LastUpdated: React.FC<LastUpdatedProps> = ({ lastFetchTime, style }) => {
         return days === 1 ? '1 day ago' : `${days} days ago`;
       }
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (!lastFetchTime) {
@@ -38,14 +41,16 @@ const LastUpdated: React.FC<LastUpdatedProps> = ({ lastFetchTime, style }) => {
       return;
     }
 
-    setDisplayText(`Last updated: ${getTimeAgo(lastFetchTime)}`);
-
-    const interval = setInterval(() => {
+    const updateDisplay = () => {
       setDisplayText(`Last updated: ${getTimeAgo(lastFetchTime)}`);
-    }, 60000); // Update every minute
+    };
+
+    updateDisplay();
+
+    const interval = setInterval(updateDisplay, 30000);
 
     return () => clearInterval(interval);
-  }, [lastFetchTime]);
+  }, [lastFetchTime, getTimeAgo]);
 
   return <Text style={style}>{displayText}</Text>;
 };

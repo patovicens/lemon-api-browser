@@ -94,3 +94,7 @@ export const FIAT_CURRENCY_NAMES: Record<string, string> = {
 export const getFiatDisplayName = (fiatId: string): string => {
   return FIAT_CURRENCY_NAMES[fiatId.toLowerCase()] || fiatId.toUpperCase();
 };
+
+export const getSupportedFiatCurrencies = (): string[] => {
+  return Object.keys(FIAT_CURRENCY_NAMES);
+};

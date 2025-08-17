@@ -1,6 +1,9 @@
 import { CryptoCurrency, CryptoListParams } from '../types/crypto';
+import { FIAT_CURRENCY_NAMES } from '../utils/constants';
 
+// TODO: move to .env
 const COINGECKO_BASE_URL = 'https://api.coingecko.com/api/v3';
+const COINGECKO_API_KEY = 'CG-SGfJJPkMJBneFhqP3miR77US';
 
 class CryptoApiError extends Error {
   constructor(message: string, public status?: number) {
@@ -9,11 +12,26 @@ class CryptoApiError extends Error {
   }
 }
 
+const createHeaders = () => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (COINGECKO_API_KEY && COINGECKO_API_KEY.trim() !== '') {
+    headers['x-cg-demo-api-key'] = COINGECKO_API_KEY;
+  }
+  
+  return headers;
+};
+
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
     if (response.status === 429) {
-      console.warn('🚨 Rate limit exceeded (429)');
-      console.warn('Response headers:', Object.fromEntries(response.headers.entries()));
+      const retryAfter = response.headers.get('retry-after');
+      throw new CryptoApiError(
+        `Rate limit exceeded. ${retryAfter ? `Retry after ${retryAfter} seconds.` : ''}`,
+        response.status
+      );
     }
     throw new CryptoApiError(
       `API request failed: ${response.status} ${response.statusText}`,
@@ -21,6 +39,13 @@ const handleResponse = async (response: Response) => {
     );
   }
   return response.json();
+};
+
+// Added since coingecko doesn't display fiat currencies only
+const isCryptoCurrency = async (currency: string): Promise<boolean> => {
+  const fiatCurrencies = Object.keys(FIAT_CURRENCY_NAMES);
+  
+  return !fiatCurrencies.includes(currency.toLowerCase());
 };
 
 export const cryptoApi = {
@@ -44,10 +69,10 @@ export const cryptoApi = {
 
     const url = `${COINGECKO_BASE_URL}/coins/markets?${searchParams.toString()}`;
     
-    console.log('📡 API call:', url);
-    
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: createHeaders(),
+      });
       return await handleResponse(response);
     } catch (error) {
       if (error instanceof CryptoApiError) {
@@ -62,11 +87,11 @@ export const cryptoApi = {
       return [];
     }
 
-    console.log('🔍 Search:', query);
-
     try {
       const url = `${COINGECKO_BASE_URL}/search?query=${encodeURIComponent(query)}`;
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: createHeaders(),
+      });
       const searchData = await handleResponse(response);
       
       if (searchData.coins && searchData.coins.length > 0) {
@@ -84,17 +109,72 @@ export const cryptoApi = {
   getCryptoById: async (id: string): Promise<CryptoCurrency> => {
     const url = `${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&ids=${id}&order=market_cap_desc&per_page=1&page=1&sparkline=false&locale=en`;
     
-    console.log('📡 Get by ID:', id);
-    
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: createHeaders(),
+      });
       const data = await handleResponse(response);
+      
+      if (!data || data.length === 0) {
+        throw new CryptoApiError(`Cryptocurrency with id '${id}' not found`, 404);
+      }
+      
       return data[0];
     } catch (error) {
       if (error instanceof CryptoApiError) {
         throw error;
       }
       throw new CryptoApiError(`Failed to fetch crypto: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  },
+
+  getExchangeRate: async (fromCurrency: string, toCurrency: string): Promise<number> => {
+    const fromIsCrypto = await isCryptoCurrency(fromCurrency);
+    const toIsCrypto = await isCryptoCurrency(toCurrency);
+    
+    // CoinGecko simple/price endpoint requires crypto ID in 'ids' parameter
+    // and target currency in 'vs_currencies' parameter
+    // For fiat-to-crypto conversions, we get crypto-to-fiat rate and invert it
+    let cryptoId: string;
+    let fiatCurrency: string;
+    let shouldInvert = false;
+    
+    if (fromIsCrypto && !toIsCrypto) {
+      // Crypto to Fiat (normal case)
+      cryptoId = fromCurrency;
+      fiatCurrency = toCurrency;
+    } else if (!fromIsCrypto && toIsCrypto) {
+      cryptoId = toCurrency;
+      fiatCurrency = fromCurrency;
+      shouldInvert = true;
+    } else {
+      throw new CryptoApiError(`Invalid currency pair: ${fromCurrency} to ${toCurrency}. One must be crypto, one must be fiat.`);
+    }
+    
+    const url = `${COINGECKO_BASE_URL}/simple/price?ids=${cryptoId}&vs_currencies=${fiatCurrency}`;
+    
+    try {
+      const response = await fetch(url, {
+        headers: createHeaders(),
+      });
+      const data = await handleResponse(response);
+      
+      if (!data || !data[cryptoId] || typeof data[cryptoId][fiatCurrency] !== 'number') {
+        console.error('Invalid API response structure:', data);
+        throw new CryptoApiError(`Exchange rate not available for ${fromCurrency} to ${toCurrency}`, 404);
+      }
+      
+      const rate = data[cryptoId][fiatCurrency];
+      
+      // Return the rate (inverted if we're doing fiat-to-crypto)
+      const finalRate = shouldInvert ? (1 / rate) : rate;
+      
+      return finalRate;
+    } catch (error) {
+      if (error instanceof CryptoApiError) {
+        throw error;
+      }
+      throw new CryptoApiError(`Failed to fetch exchange rate: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   },
 };
