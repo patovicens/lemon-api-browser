@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AppNavigator from './src/navigation/AppNavigator';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { RateLimitProvider } from './src/contexts/RateLimitContext';
@@ -29,7 +30,9 @@ const App = () => {
           <GlobalStatusBar />
           <RateLimitProvider>
             <CryptoListProvider>
-              <AppNavigator />
+              <GestureHandlerRootView>
+                <AppNavigator />
+              </GestureHandlerRootView>
             </CryptoListProvider>
           </RateLimitProvider>
         </ThemeProvider>

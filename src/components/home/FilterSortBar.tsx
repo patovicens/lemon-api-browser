@@ -201,7 +201,7 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
           ]}
           onPress={() => handleDirectionSelect('asc')}
         >
-          <FontAwesomeIcon icon={faArrowUp} size={14} color={colors.themeTextSecondary} />
+          <FontAwesomeIcon icon={faArrowUp} size={14} color={currentSort.direction === 'asc' ? colors.lemon : colors.themeTextSecondary} />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -211,14 +211,14 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
           ]}
           onPress={() => handleDirectionSelect('desc')}
         >
-          <FontAwesomeIcon icon={faArrowDown} size={14} color={colors.themeTextSecondary} />
+          <FontAwesomeIcon icon={faArrowDown} size={14} color={currentSort.direction === 'desc' ? colors.lemon : colors.themeTextSecondary} />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.button, getActiveFiltersCount() > 0 && styles.buttonActive]}
           onPress={() => setShowFilterModal(true)}
         >
-          <FontAwesomeIcon icon={faFilter} size={14} color={colors.themeTextSecondary} />
+          <FontAwesomeIcon icon={faFilter} size={14} color={getActiveFiltersCount() > 0 ? colors.lemon : colors.themeTextSecondary} />
           <Text style={styles.buttonText}>
             {getActiveFiltersCount() > 0 ? getActiveFiltersCount() : 'Filter'}
           </Text>

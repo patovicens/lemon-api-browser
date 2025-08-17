@@ -103,7 +103,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             activeOpacity={0.7}
           >
             <View style={styles.profileButtonContent}>
-              <FontAwesomeIcon icon={faUserCircle} size={20} color={colors.themeText} />
+              <FontAwesomeIcon icon={faUserCircle} size={20} color={colors.darkBackground} />
               <Text style={styles.profileButtonText}>
                 {user?.email ? `@${user.email.split('@')[0]}` : '@User'}
               </Text>
@@ -246,20 +246,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: 8,
   },
   profileButton: {
-    backgroundColor: colors.themeSurface,
+    backgroundColor: colors.lemon,
     borderWidth: 1,
-    borderColor: colors.themeBorder,
+    borderColor: colors.lemon,
     borderRadius: 12,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    shadowColor: colors.themeText,
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowColor: colors.lemon,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   themeToggleButton: {
     padding: 6,
@@ -273,7 +270,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   profileButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.themeText,
+    color: colors.darkBackground,
   },
   headerRight: {
     flexDirection: 'row',

@@ -17,7 +17,7 @@ export const colors = {
   darkBorder: '#404040',
   darkBorderLight: '#333333',
   
-  // Light theme colors (original)
+  // Light theme colors
   lightBackground: '#f5f5f5',
   lightSurface: '#ffffff',
   lightSurfaceLight: '#fafafa',

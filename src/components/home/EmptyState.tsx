@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { colors } from '../../theme';
+import { ThemeColors } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface EmptyStateProps {
   searchQuery: string;  
@@ -9,6 +10,9 @@ interface EmptyStateProps {
 }
 
 const EmptyState: React.FC<EmptyStateProps> = ({ searchQuery, isSearching, onRetry }) => {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   if (searchQuery && isSearching) {
     return (
       <View style={styles.container}>
@@ -35,7 +39,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({ searchQuery, isSearching, onRet
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -45,25 +49,25 @@ const styles = StyleSheet.create({
   },
   searchingText: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.themeTextSecondary,
     fontStyle: 'italic',
     textAlign: 'center',
     marginTop: 8,
   },
   emptyText: {
     fontSize: 16,
-    color: colors.textSecondary,
+    color: colors.themeTextSecondary,
     textAlign: 'center',
     marginBottom: 16,
   },
   retryButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.themeBorderLight,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
   },
   retryButtonText: {
-    color: colors.surface,
+    color: colors.themeText,
     fontSize: 14,
     fontWeight: '600',
   },
