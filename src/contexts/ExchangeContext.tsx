@@ -22,6 +22,7 @@ interface ExchangeContextType {
   currentPrice: number | null;
   isLoading: boolean;
   error: string | null;
+  rateError: string | null;
   lastFetchTime: Date | null;
   loadingStates: {
     crypto: boolean;
@@ -270,6 +271,7 @@ export const ExchangeProvider: React.FC<ExchangeProviderProps> = ({ children }) 
     currentPrice,
     isLoading: data.loadingStates.crypto || data.loadingStates.fiat,
     error: data.cryptoError || data.fiatError,
+    rateError: data.rateError,
     lastFetchTime: state.lastFetchTime,
     loadingStates: {
       ...data.loadingStates,
