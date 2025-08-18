@@ -6,7 +6,7 @@ A React Native cryptocurrency trading and management application with a modern, 
 
 - **Cryptocurrency Management**: View and track crypto prices, market data, and portfolio
 - **Exchange Functionality**: Convert between different cryptocurrencies and fiat currencies
-- **QR Code Scanner**: Scan crypto addresses and transaction QR codes
+- **QR Code Scanner**: Scan crypto addresses
 - **Dark/Light Theme**: Toggle between themes with smooth animations
 - **Google Authentication**: Secure login with Google accounts
 - **Real-time Data**: Live cryptocurrency prices and exchange rates via CoinGecko API
@@ -35,6 +35,8 @@ A React Native cryptocurrency trading and management application with a modern, 
    ```bash
    yarn install
    ```
+   
+   **Note**: This project uses patch-package to fix some issues with dependencies. The patches will be automatically applied after yarn install.
 
 3. **iOS Setup**
    ```bash
@@ -44,13 +46,10 @@ A React Native cryptocurrency trading and management application with a modern, 
    ```
 
 4. **Environment Configuration**
+   Create a new `.env` file in the project root and add:
    ```bash
-   # Copy the example environment file
-   cp .env.example .env
-   
-   # Edit .env and add your CoinGecko API key
-   # Get a free API key from: https://www.coingecko.com/en/api
-   COINGECKO_API_KEY=your_actual_api_key_here
+   COINGECKO_BASE_URL=https://api.coingecko.com/api/v3
+   COINGECKO_API_KEY=your_api_key_here  # Get from https://www.coingecko.com/en/api
    ```
    
    **Note**: The `.env` file contains sensitive information and is automatically ignored by git. Never commit your actual API keys.
@@ -111,6 +110,7 @@ A React Native cryptocurrency trading and management application with a modern, 
 | `react-native-gesture-handler` | 2.28.0 | Gesture handling |
 | `@gorhom/bottom-sheet` | 5.x | Bottom sheet modals |
 | `react-native-svg` | 15.12.1 | SVG support for React Native |
+| `react-native-splash-screen` | ^3.3.0 | Custom splash screen handling |
 
 ### Camera & Scanning
 
@@ -155,28 +155,6 @@ A React Native cryptocurrency trading and management application with a modern, 
 - **Hermes Engine**: Enabled by default for better performance
 - **Image Optimization**: Uses vector icons where possible
 - **List Rendering**: FlashList for large data sets
-- **Background Processing**: Worklets for heavy computations
-
-### Development Notes
-
-- **TypeScript**: Strict mode enabled, avoid `any` types
-- **Error Handling**: Centralized error context for consistent error handling
-- **Theme System**: Dynamic theme switching with context
-
-## 🔧 Development Scripts
-
-```bash
-# Run on iOS simulator (automatically starts Metro bundler)
-yarn ios
-
-# Run on Android emulator (automatically starts Metro bundler)
-yarn android
-
-# Clean and rebuild
-cd android && ./gradlew clean
-cd ios && xcodebuild clean
-```
-
 
 
 ## 🎨 Theme System

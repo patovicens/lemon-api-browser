@@ -1,5 +1,5 @@
 import { CryptoCurrency } from '../types/crypto';
-import { SortOption, FilterOption } from '../components/home/FilterSortBar';
+import { SortOption, FilterOption } from '../types/home';
 
 type CryptoValue = string | number | null | undefined | { times: number; currency: string; percentage: number };
 

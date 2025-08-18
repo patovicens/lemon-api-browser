@@ -1,5 +1,5 @@
 import { useRateLimit } from '../contexts/RateLimitContext';
-import { CryptoApiError } from '../services/cryptoApi';
+import { CryptoApiError } from '../types/crypto';
 
 export const useQueryErrorConfig = () => {
   const { handle429Error } = useRateLimit();
@@ -17,7 +17,7 @@ export const useQueryErrorConfig = () => {
         return false;
       }
       
-      if (apiError?.status >= 500 || apiError?.code === 'SERVER_ERROR' || apiError?.code === 'NETWORK_ERROR') {
+      if (apiError?.status && (apiError?.status >= 500 || apiError?.code === 'SERVER_ERROR' || apiError?.code === 'NETWORK_ERROR')) {
         return failureCount < 3;
       }
       

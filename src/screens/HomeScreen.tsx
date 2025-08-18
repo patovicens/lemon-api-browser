@@ -65,8 +65,6 @@ const HomeScreen: React.FC = () => {
     return () => clearTimeout(timeout);
   }, [searchQuery, setQuery]);
 
-
-
   const handleCryptoPress = useCallback((crypto: CryptoCurrency) => {
     const priceChange = crypto.price_change_percentage_24h !== null 
       ? `${crypto.price_change_percentage_24h.toFixed(2)}%`

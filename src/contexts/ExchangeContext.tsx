@@ -264,15 +264,15 @@ export const ExchangeProvider: React.FC<ExchangeProviderProps> = ({ children }) 
 
   const value: ExchangeContextType = {
     state,
-    exchangeRate: data.exchangeRate,
+    exchangeRate: data.exchangeRate || null,
     cryptoCurrencies: data.cryptoCurrencies,
     fiatCurrencies: data.fiatCurrencies,
     selectedCrypto,
-    currentPrice,
+    currentPrice: currentPrice || null,
     isLoading: data.loadingStates.crypto || data.loadingStates.fiat,
     error: data.cryptoError || data.fiatError,
     rateError: data.rateError,
-    lastFetchTime: state.lastFetchTime,
+    lastFetchTime: state.lastFetchTime || null,
     loadingStates: {
       ...data.loadingStates,
       refreshing: isRefreshing,

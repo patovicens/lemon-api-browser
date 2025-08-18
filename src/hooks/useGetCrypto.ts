@@ -1,8 +1,8 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { cryptoApi } from '../services/cryptoApi';
 import { CryptoListParams } from '../types/crypto';
-import { SortOption } from '../components/home/FilterSortBar';
 import { useQueryErrorConfig } from '../utils/queryErrorConfig';
+import { SortOption } from '../types/home';
 
 export const useCryptoSearch = (query: string) => {
   const enabled = query.trim().length > 0;
