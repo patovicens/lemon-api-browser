@@ -13,8 +13,8 @@ import {
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { 
-  faCoins, 
   faExchangeAlt, 
+  faLemon, 
   faQrcode
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -67,7 +67,7 @@ const ScannerNavigator = () => {
 };
 
 const HomeIcon = ({ color, size }: { color: string; size: number }) => (
-  <FontAwesomeIcon icon={faCoins} size={size} color={color} />
+  <FontAwesomeIcon icon={faLemon} size={size} color={color} />
 );
 const ExchangeIcon = ({ color, size }: { color: string; size: number }) => (
   <FontAwesomeIcon icon={faExchangeAlt} size={size} color={color} />
@@ -83,6 +83,7 @@ const MainTabs = () => {
   return (
     <Tab.Navigator
       id={undefined}
+      initialRouteName="Home"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.lemon,
@@ -103,19 +104,19 @@ const MainTabs = () => {
       }}
     >
       <Tab.Screen 
-        name="Home" 
-        component={HomeNavigator}
-        options={{
-          title: 'Home',
-          tabBarIcon: HomeIcon,
-        }}
-      />
-      <Tab.Screen 
         name="Exchange" 
         component={ExchangeNavigator}
         options={{
           title: 'Exchange',
           tabBarIcon: ExchangeIcon,
+        }}
+      />
+      <Tab.Screen 
+        name="Home" 
+        component={HomeNavigator}
+        options={{
+          title: 'Home',
+          tabBarIcon: HomeIcon,
         }}
       />
       <Tab.Screen 

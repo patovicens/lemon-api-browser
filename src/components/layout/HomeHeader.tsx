@@ -114,7 +114,6 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           <TouchableOpacity 
             onPress={toggleTheme}
             style={styles.themeToggleButton}
-            focusable={false}
           >
             <FontAwesomeIcon 
               icon={theme === 'dark' ? faSun : faMoon} 
@@ -145,6 +144,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           <TouchableOpacity 
             onPress={onToggleFilters}
             style={[styles.iconButton, isFiltersVisible && styles.iconButtonActive]}
+          
           >
             <FontAwesomeIcon 
               icon={faArrowUpWideShort} 
@@ -175,54 +175,56 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
         </View>
       </View>
 
-      <Animated.View style={[
-        styles.searchContainer,
-        {
-          height: searchAnimation.interpolate({
-            inputRange: [0, 1],
-            outputRange: [0, 56],
-          }),
-          opacity: searchAnimation,
-          paddingTop: searchAnimation.interpolate({
-            inputRange: [0, 1],
-            outputRange: [0, 10],
-          }),
-          transform: [{
-            scaleY: searchAnimation.interpolate({
+      {isSearchActive && (
+        <Animated.View style={[
+          styles.searchContainer,
+          {
+            height: searchAnimation.interpolate({
               inputRange: [0, 1],
-              outputRange: [0, 1],
-            })
-          }],
-        }
-      ]}>
-        <Animated.View style={{
-          opacity: searchAnimation.interpolate({
-            inputRange: [0, 0.5, 1],
-            outputRange: [0, 0.8, 1],
-          }),
-          transform: [{
-            translateY: searchAnimation.interpolate({
+              outputRange: [0, 56],
+            }),
+            opacity: searchAnimation,
+            paddingTop: searchAnimation.interpolate({
               inputRange: [0, 1],
-              outputRange: [-10, 0],
-            })
-          }]
-        }}>
-          <TextInput
-            ref={searchInputRef}
-            style={styles.searchInput}
-            placeholder="Search cryptocurrencies..."
-            placeholderTextColor={colors.themeTextTertiary}
-            value={searchQuery}
-            onChangeText={handleSearchChange}
-            returnKeyType="search"
-            onSubmitEditing={() => {
-              if (onSearchSubmit && searchQuery.trim()) {
-                onSearchSubmit(searchQuery.trim());
-              }
-            }}
-          />
+              outputRange: [0, 10],
+            }),
+            transform: [{
+              scaleY: searchAnimation.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 1],
+              })
+            }],
+          }
+        ]}>
+          <Animated.View style={{
+            opacity: searchAnimation.interpolate({
+              inputRange: [0, 0.5, 1],
+              outputRange: [0, 0.8, 1],
+            }),
+            transform: [{
+              translateY: searchAnimation.interpolate({
+                inputRange: [0, 1],
+                outputRange: [-10, 0],
+              })
+            }]
+          }}>
+            <TextInput
+              ref={searchInputRef}
+              style={styles.searchInput}
+              placeholder="Search cryptocurrencies..."
+              placeholderTextColor={colors.themeTextTertiary}
+              value={searchQuery}
+              onChangeText={handleSearchChange}
+              returnKeyType="search"
+              onSubmitEditing={() => {
+                if (onSearchSubmit && searchQuery.trim()) {
+                  onSearchSubmit(searchQuery.trim());
+                }
+              }}
+            />
+          </Animated.View>
         </Animated.View>
-      </Animated.View>
+      )}
     </View>
   );
 };

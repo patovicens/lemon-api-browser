@@ -6,8 +6,9 @@ import {
   TouchableOpacity,
   Platform,
   PermissionsAndroid,
-
   Dimensions,
+  Alert,
+  Linking,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,6 +16,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faClock, faMobileAlt, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Camera, CameraType } from 'react-native-camera-kit';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 
 import { ThemeColors } from '../../theme';
 import { detectWalletType } from '../../utils/walletUtils';
@@ -39,6 +41,7 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
 
   useEffect(() => {
     checkSimulator();
+    checkCameraAvailability();
   }, []);
 
   // Handle camera setup and cleanup on screen focus/blur
@@ -50,10 +53,41 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
       return () => {
         // Cleanup when screen loses focus
         setIsProcessing(false);
-        setHasPermission(null); 
+        setHasPermission(null);
       };
     }, [])
   );
+
+  const checkSimulator = () => {
+    if (Platform.OS === 'ios') {
+      const simulatorDetected = Platform.isPad || Platform.isTV;
+      setIsSimulator(simulatorDetected);
+    } else if (Platform.OS === 'android') {
+      // Android Emulator detection - disabled for testing
+      const emulatorDetected = false;
+      setIsSimulator(emulatorDetected);
+    }
+  };
+
+  const openSettings = () => {
+    if (Platform.OS === 'ios') {
+      Linking.openURL('app-settings:');
+    }
+  };
+
+  const checkCameraAvailability = () => {
+    // Check if camera is available on the device
+    if (Platform.OS === 'ios') {
+      // iOS doesn't have a direct way to check camera availability
+      // but we can check if we're on a device that should have a camera
+      const hasCamera = !Platform.isPad && !Platform.isTV;
+      if (!hasCamera) {
+        setIsSimulator(true);
+        return false;
+      }
+    }
+    return true;
+  };
 
   const checkCameraPermission = async () => {
     if (Platform.OS === 'android') {
@@ -74,19 +108,29 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
         setHasPermission(false);
       }
     } else {
-      // iOS permissions are handled by the Camera component
-      setHasPermission(true);
-    }
-  };
-
-  const checkSimulator = () => {
-    if (Platform.OS === 'ios') {
-      const simulatorDetected = Platform.isPad || Platform.isTV;
-      setIsSimulator(simulatorDetected);
-    } else if (Platform.OS === 'android') {
-      // Android Emulator detection - disabled for testing
-      const emulatorDetected = false;
-      setIsSimulator(emulatorDetected);
+      // iOS: Check current permission state first, then request if needed
+      try {
+        const currentStatus = await check(PERMISSIONS.IOS.CAMERA);
+        
+        if (currentStatus === RESULTS.GRANTED) {
+          setHasPermission(true);
+        } else if (currentStatus === RESULTS.DENIED) {
+          const result = await request(PERMISSIONS.IOS.CAMERA);
+          
+          if (result === RESULTS.GRANTED) {
+            setHasPermission(true);
+          } else {
+            setHasPermission(false);
+          }
+        } else if (currentStatus === RESULTS.BLOCKED) {
+          setHasPermission(false);
+        } else {
+          setHasPermission(false);
+        }
+      } catch (error) {
+        console.error('iOS: Error checking/requesting camera permission:', error);
+        setHasPermission(false);
+      }
     }
   };
 
@@ -112,7 +156,9 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
             onPress={checkCameraPermission}
             style={styles.permissionButton}
           >
-            <Text style={styles.permissionButtonText}>Grant Permission</Text>
+            <Text style={styles.permissionButtonText}>
+              Grant Permission
+            </Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -194,13 +240,15 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
 
       {/* Camera Component */}
       <View style={styles.cameraContainer}>
-                <View style={styles.scanContainer}>
+        <View style={styles.scanContainer}>
           <Camera
             key={isProcessing ? 'processing' : 'ready'}
             style={styles.camera}
             cameraType={CameraType.Back}
             scanBarcode={true}
+            showFrame={false}
             onReadCode={(event) => {
+              console.log('QR code read:', event.nativeEvent);
               // Prevent multiple rapid scans
               if (isProcessing) return;
               
@@ -229,7 +277,21 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
                 }, 500);
               }
             }}
-          showFrame={false}
+            onError={(error) => {
+              console.error('Camera error:', error);
+              
+              Alert.alert(
+                'Camera Error',
+                'Camera initialization failed. Please try again.',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Retry', onPress: () => {
+                    // Force re-render of camera component
+                    setIsProcessing(!isProcessing);
+                  }}
+                ]
+              );
+            }}
           />
           
           {/* Custom Frame Corners */}
@@ -338,21 +400,21 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.lemon,
   },
   topLeft: {
-    top: VERTICAL_OFFSET,
+    top: Platform.OS === 'ios' ? VERTICAL_OFFSET - 60 : VERTICAL_OFFSET,
     left: HORIZONTAL_OFFSET,
   },
   topRight: {
-    top: VERTICAL_OFFSET,
+    top: Platform.OS === 'ios' ? VERTICAL_OFFSET - 60 : VERTICAL_OFFSET,
     right: HORIZONTAL_OFFSET,
     transform: [{ rotate: '90deg' }],
   },
   bottomLeft: {
-    top: VERTICAL_OFFSET + FRAME_SIZE - 20, // subtract corner size
+    top: Platform.OS === 'ios' ? VERTICAL_OFFSET + FRAME_SIZE - 80 : VERTICAL_OFFSET + FRAME_SIZE - 20,
     left: HORIZONTAL_OFFSET,
     transform: [{ rotate: '-90deg' }],
   },
   bottomRight: {
-    top: VERTICAL_OFFSET + FRAME_SIZE - 20, // subtract corner size
+    top: Platform.OS === 'ios' ? VERTICAL_OFFSET + FRAME_SIZE - 80 : VERTICAL_OFFSET + FRAME_SIZE - 20,
     right: HORIZONTAL_OFFSET,
     transform: [{ rotate: '180deg' }],
   },
@@ -388,6 +450,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.themeBackground,
+  },
+  secondaryButton: {
+    backgroundColor: colors.themeSurface,
+    borderWidth: 1,
+    borderColor: colors.themeBorder,
+    marginTop: 10,
+  },
+  secondaryButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.themeText,
   },
   simulatorContainer: {
     flex: 1,
