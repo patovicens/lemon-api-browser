@@ -48,8 +48,19 @@ A React Native cryptocurrency trading and management application with a modern, 
 4. **Environment Configuration**
    Create a new `.env` file in the project root and add:
    ```bash
+   # CoinGecko API Configuration
    COINGECKO_BASE_URL=https://api.coingecko.com/api/v3
    COINGECKO_API_KEY=your_api_key_here  # Get from https://www.coingecko.com/en/api
+
+   # Google Auth Configuration
+   # To get this:
+   # 1. Go to Google Cloud Console (https://console.cloud.google.com)
+   # 2. Create a project or select an existing one
+   # 3. Enable Google Sign-In API
+   # 4. Go to Credentials
+   # 5. Create an OAuth 2.0 Client ID (type: Web application)
+   # 6. Copy the Client ID here
+   GOOGLE_WEB_CLIENT_ID=your_google_web_client_id_here
    ```
    
    **Note**: The `.env` file contains sensitive information and is automatically ignored by git. Never commit your actual API keys.

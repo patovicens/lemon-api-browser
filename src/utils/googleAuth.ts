@@ -1,4 +1,5 @@
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import { GOOGLE_WEB_CLIENT_ID } from '@env';
 import { AuthUser } from '../types/auth';
 import { storeAuthSession, removeAuthSession } from './auth';
 
@@ -8,7 +9,7 @@ interface GoogleSignInError extends Error {
 
 export const configureGoogleSignIn = () => {
   GoogleSignin.configure({
-    webClientId: '555057284072-0l787shsjnukmqj5euhguj3anmj8d6si.apps.googleusercontent.com',
+    webClientId: GOOGLE_WEB_CLIENT_ID,
     offlineAccess: true,
     hostedDomain: '',
     forceCodeForRefreshToken: true,
