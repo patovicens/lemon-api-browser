@@ -1,0 +1,41 @@
+diff --git a/node_modules/react-native-camera-kit/ios/ReactNativeCameraKit/CameraView.swift b/node_modules/react-native-camera-kit/ios/ReactNativeCameraKit/CameraView.swift
+index ad161e5..cfe1c5a 100644
+--- a/node_modules/react-native-camera-kit/ios/ReactNativeCameraKit/CameraView.swift
++++ b/node_modules/react-native-camera-kit/ios/ReactNativeCameraKit/CameraView.swift
+@@ -91,6 +91,20 @@ public class CameraView: UIView {
+         }
+     }
+ 
++    // MARK: - Helper function for Fabric layout constraints
++    
++    private func addFullSizeSubview(_ subview: UIView) {
++        // Use constraints for FABRIC 0.80.0
++        subview.translatesAutoresizingMaskIntoConstraints = false
++        addSubview(subview)
++        NSLayoutConstraint.activate([
++            subview.topAnchor.constraint(equalTo: self.topAnchor),
++            subview.bottomAnchor.constraint(equalTo: self.bottomAnchor),
++            subview.leadingAnchor.constraint(equalTo: self.leadingAnchor),
++            subview.trailingAnchor.constraint(equalTo: self.trailingAnchor)
++        ])
++    }
++
+ 
+     // MARK: Lifecycle
+ 
+@@ -117,12 +131,12 @@ public class CameraView: UIView {
+         focusInterfaceView.update(resetFocusWhenMotionDetected: resetFocusWhenMotionDetected)
+         update(zoomMode: zoomMode)
+ 
+-        addSubview(camera.previewView)
++        addFullSizeSubview(camera.previewView)
+ 
+-        addSubview(scannerInterfaceView)
++        addFullSizeSubview(scannerInterfaceView)
+         scannerInterfaceView.isHidden = true
+ 
+-        addSubview(focusInterfaceView)
++        addFullSizeSubview(focusInterfaceView)
+         focusInterfaceView.delegate = camera
+ 
+         handleCameraPermission()

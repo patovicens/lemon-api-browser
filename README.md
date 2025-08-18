@@ -1,97 +1,281 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 🍋 LemonChallenge
 
-# Getting Started
+A React Native cryptocurrency trading and management application with a modern, lemon-themed design. Built with TypeScript and featuring real-time crypto data, QR code scanning, and Google authentication.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## 📱 Features
 
-## Step 1: Start Metro
+- **Cryptocurrency Management**: View and track crypto prices, market data, and portfolio
+- **Exchange Functionality**: Convert between different cryptocurrencies and fiat currencies
+- **QR Code Scanner**: Scan crypto addresses and transaction QR codes
+- **Dark/Light Theme**: Toggle between themes with smooth animations
+- **Google Authentication**: Secure login with Google accounts
+- **Real-time Data**: Live cryptocurrency prices and exchange rates via CoinGecko API
+- **Responsive Design**: Optimized for both iOS and Android platforms
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## 🚀 Setup Instructions
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+### Prerequisites
 
-```sh
-# Using npm
-npm start
+- **Node.js** >= 18.0.0
+- **Yarn** package manager
+- **React Native CLI** (latest version)
+- **Xcode** (for iOS development)
+- **Android Studio** (for Android development)
+- **Java Development Kit (JDK)** 17 or higher
 
-# OR using Yarn
-yarn start
-```
+### Installation
 
-## Step 2: Build and run your app
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd lemon-challenge
+   ```
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+2. **Install dependencies**
+   ```bash
+   yarn install
+   ```
 
-### Android
+3. **iOS Setup**
+   ```bash
+   cd ios
+   pod install
+   cd ..
+   ```
 
-```sh
-# Using npm
-npm run android
+4. **Environment Configuration**
+   - Copy `.env.example` to `.env` (if available)
+   - Configure your CoinGecko API key
+   - Set up Google OAuth credentials
 
-# OR using Yarn
+5. **Run the application**
+   ```bash
+   # Run on iOS (automatically starts Metro bundler)
+   yarn ios
+   
+   # Run on Android (automatically starts Metro bundler)
+   yarn android
+   ```
+
+## 📚 Libraries & Dependencies
+
+### Core Dependencies
+
+| Library | Version | Purpose |
+|---------|---------|---------|
+| `react-native` | 0.81.0 | Core React Native framework |
+| `react` | 19.1.0 | React library |
+| `typescript` | 5.8.3 | Type safety and development experience |
+
+### Navigation & UI
+
+| Library | Version | Purpose |
+|---------|---------|---------|
+| `@react-navigation/native` | 7.1.17 | Navigation framework |
+| `@react-navigation/stack` | 7.4.7 | Stack navigation |
+| `@react-navigation/bottom-tabs` | 7.4.6 | Bottom tab navigation |
+| `react-native-screens` | 4.13.1 | Native screen components |
+| `react-native-safe-area-context` | 5.6.0 | Safe area handling |
+
+### State Management & Data Fetching
+
+| Library | Version | Purpose |
+|---------|---------|---------|
+| `@tanstack/react-query` | 5.85.0 | Server state management |
+| `@react-native-async-storage/async-storage` | 2.2.0 | Local data persistence |
+
+### Authentication & Security
+
+| Library | Version | Purpose |
+|---------|---------|---------|
+| `@react-native-google-signin/google-signin` | 15.0.0 | Google OAuth integration |
+
+### UI Components & Animations
+
+| Library | Version | Purpose |
+|---------|---------|---------|
+| `@fortawesome/react-native-fontawesome` | 0.3.2 | Icon library |
+| `react-native-reanimated` | 4.0.2 | Smooth animations |
+| `react-native-gesture-handler` | 2.28.0 | Gesture handling |
+| `@gorhom/bottom-sheet` | 5.x | Bottom sheet modals |
+
+### Camera & Scanning
+
+| Library | Version | Purpose |
+|---------|---------|---------|
+| `react-native-camera-kit` | 15.1.0 | Camera functionality |
+| `react-native-permissions` | 5.4.2 | Permission handling |
+
+### Performance & Optimization
+
+| Library | Version | Purpose |
+|---------|---------|---------|
+| `@shopify/flash-list` | 2.0.2 | High-performance list rendering |
+
+## ⚠️ Caveats & Important Notes
+
+### Platform-Specific Considerations
+
+#### iOS
+- **Minimum iOS Version**: iOS 12.0+
+- **Camera Permissions**: Requires camera access for QR scanning
+- **Google Sign-In**: Needs proper URL scheme configuration in Info.plist
+- **Splash Screen**: Custom launch screen with lemon icon and dark theme
+
+#### Android
+- **Minimum SDK**: API level 24 (Android 7.0)
+- **Target SDK**: API level 36 (Android 14)
+- **Permissions**: Camera and storage permissions required
+- **Navigation Bar**: Custom themed navigation bar matching app theme
+- **Splash Screen**: Custom launch screen with vector lemon icon
+
+### API Limitations
+
+- **CoinGecko API**: Free tier has rate limits (50 calls/minute)
+- **Rate Limiting**: App includes rate limit handling and user feedback
+- **API Key**: Demo API key included, but production should use registered key
+
+### Performance Considerations
+
+- **Hermes Engine**: Enabled by default for better performance
+- **Image Optimization**: Uses vector icons where possible
+- **List Rendering**: FlashList for large data sets
+- **Background Processing**: Worklets for heavy computations
+
+### Development Notes
+
+- **TypeScript**: Strict mode enabled, avoid `any` types
+- **Error Handling**: Centralized error context for consistent error handling
+- **Theme System**: Dynamic theme switching with context
+
+## 🔧 Development Scripts
+
+```bash
+# Run on iOS simulator (automatically starts Metro bundler)
+yarn ios
+
+# Run on Android emulator (automatically starts Metro bundler)
 yarn android
+
+# Clean and rebuild
+cd android && ./gradlew clean
+cd ios && xcodebuild clean
 ```
 
-### iOS
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+## 🎨 Theme System
 
-```sh
-bundle install
-```
+The app features a comprehensive theme system with:
+- **Dark Theme**: Primary theme with dark backgrounds and lemon accents
+- **Light Theme**: Alternative theme with light backgrounds
+- **Dynamic Switching**: Real-time theme changes
+- **Consistent Colors**: Lemon (#FFC107) as primary accent color
+- **Platform Integration**: Native status bar and navigation bar theming
 
-Then, and every time you update your native dependencies, run:
+## 🔐 Authentication
 
-```sh
-bundle exec pod install
-```
+- **Google OAuth**: Secure authentication via Google accounts
+- **Token Management**: Automatic token refresh and validation
+- **Secure Storage**: Encrypted local storage for sensitive data
+- **Session Persistence**: Maintains login state across app restarts
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+## 📊 Data Management
 
-```sh
-# Using npm
-npm run ios
+- **React Query**: Efficient server state management
+- **Caching**: Intelligent caching for API responses
+- **Offline Support**: Graceful handling of network issues
+- **Real-time Updates**: Live data refresh capabilities
 
-# OR using Yarn
+## 🚨 Troubleshooting
+
+### Critical iOS Camera Fix (React Native 0.80+ with New Architecture)
+
+If you're experiencing a **blank/white screen** when using the camera on iOS with React Native 0.80+ and New Architecture enabled, this is a known issue with `react-native-camera-kit` and the new Fabric renderer.
+
+#### The Problem
+- Camera preview shows as blank/white screen on iOS
+- Not a permissions issue - camera permissions work correctly
+- Caused by missing layout constraints in the new Fabric architecture
+- Affects `react-native-camera-kit` version 15.1.0 and below
+
+#### The Solution
+This project automatically applies the necessary fix using **patch-package**. The fix is applied automatically when you run `yarn install`.
+
+**What the fix does:**
+- Adds Auto Layout constraints for Fabric 0.80.0 compatibility
+- Replaces frame-based layout with constraint-based layout
+- Ensures camera preview, scanner interface, and focus interface are properly positioned
+
+**How it works:**
+1. The fix is stored in `patches/react-native-camera-kit+15.1.0.patch`
+2. When you run `yarn install`, patch-package automatically applies the fix
+3. No manual file editing required
+4. The fix persists across dependency reinstalls
+
+**If you need to manually apply the fix elsewhere:**
+The patch modifies `CameraView.swift` to add a helper function and update the view initialization method. You can view the exact changes in the patch file.
+
+**Rebuild after installation:**
+```bash
+cd ios && pod install
 yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+#### Why This Fix Works
+The new Fabric architecture requires explicit Auto Layout constraints. Without them, UIKit reports "ambiguous layout" causing views to be present but never rendered (hence the blank screen).
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+#### Official Fix Status
+**Good news!** This issue has been officially fixed in [PR #731](https://github.com/teslamotors/react-native-camera-kit/pull/731) and is awaiting merge. The PR introduces the exact same solution we've implemented:
 
-## Step 3: Modify your app
+- Adds Auto Layout constraints for Fabric 0.80.0 compatibility
+- Replaces frame-based layout with constraint-based layout
+- Ensures proper view rendering under the new architecture
 
-Now that you have successfully run the app, let's make changes!
+**Current status**: The PR has been approved by multiple reviewers and is ready for merge. Once merged, you can:
+1. Remove the patch file: `rm patches/react-native-camera-kit+15.1.0.patch`
+2. Update to the latest version: `yarn upgrade react-native-camera-kit`
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+#### Alternative Solutions
+- **Wait for official fix**: The fix is ready and should be merged soon
+- **Disable New Architecture**: Set `RCTNewArchEnabled` to `false` in `Info.plist` (temporary workaround)
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+### Common Issues
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+1. **Metro Bundler Issues**
+   ```bash
+   yarn start --reset-cache
+   ```
 
-## Congratulations! :tada:
+2. **iOS Build Issues**
+   ```bash
+   cd ios && pod deintegrate && pod install
+   ```
 
-You've successfully run and modified your React Native App. :partying_face:
+3. **Android Build Issues**
+   ```bash
+   cd android && ./gradlew clean
+   ```
 
-### Now what?
+4. **Permission Issues**
+   - Ensure camera permissions are granted
+   - Check Info.plist and AndroidManifest.xml configurations
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+### Getting Help
 
-# Troubleshooting
+- Check the React Native documentation
+- Review platform-specific setup guides
+- Ensure all dependencies are properly linked
+- Verify environment variables and API keys
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+## 📄 License
 
-# Learn More
+This project is private and proprietary. All rights reserved.
 
-To learn more about React Native, take a look at the following resources:
+## 🤝 Contributing
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+This is a private project. For internal development, please follow the established coding standards and review process.
+
+---
+
+**Built with ❤️ using React Native and TypeScript**

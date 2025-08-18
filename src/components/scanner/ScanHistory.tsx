@@ -3,21 +3,22 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   TouchableOpacity,
-  Alert,
-  TextInput,
   Platform,
+  Alert,
+  FlatList,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faHeart, faHeartBroken, faTrash, faEdit, faTimes, faCheck, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faHeartBroken, faTrash, faEdit, faTimes, faCheck, faArrowLeft, faCoins } from '@fortawesome/free-solid-svg-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useScanner } from '../../contexts/ScannerContext';
 import { ScannedWallet } from '../../types/crypto';
-import { formatWalletAddress, getWalletTypeDisplayName, getWalletTypeColor } from '../../utils/walletUtils';
+import { formatWalletAddress, getWalletTypeDisplayName } from '../../utils/walletUtils';
 import { ThemeColors } from '../../theme';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 const ScanHistory: React.FC = () => {
   const { colors } = useTheme();
@@ -65,6 +66,11 @@ const ScanHistory: React.FC = () => {
     navigation.goBack();
   };
 
+  const handleAddressPress = (address: string) => {
+    Clipboard.setString(address);
+    Alert.alert('Address Copied', 'Wallet address copied to clipboard!');
+  };
+
   const renderWalletItem = ({ item }: { item: ScannedWallet }) => {
     const isEditing = editingId === item.id;
     const date = new Date(item.timestamp).toLocaleDateString();
@@ -73,25 +79,28 @@ const ScanHistory: React.FC = () => {
     return (
       <View style={styles.walletItem}>
         <View style={styles.walletHeader}>
-          <View style={styles.walletTypeContainer}>
-            <View
-              style={[
-                styles.walletTypeBadge,
-                { backgroundColor: getWalletTypeColor(item.type) },
-              ]}
-            >
+          <View style={styles.walletInfo}>
+            <View style={styles.walletTypeRow}>
+              <FontAwesomeIcon 
+                icon={faCoins} 
+                size={14} 
+                color={colors.themeTextSecondary} 
+                style={styles.walletTypeIcon}
+              />
               <Text style={styles.walletTypeText}>
                 {getWalletTypeDisplayName(item.type)}
               </Text>
             </View>
-            {item.isFavorite && (
-              <FontAwesomeIcon icon={faHeart} size={16} color={colors.error} />
-            )}
+            <Text style={styles.timestampText}>{date} {time}</Text>
           </View>
-          <Text style={styles.timestampText}>{date} {time}</Text>
+          {item.isFavorite && (
+            <FontAwesomeIcon icon={faHeart} size={16} color={colors.lemon} />
+          )}
         </View>
 
-        <Text style={styles.addressText}>{formatWalletAddress(item.address)}</Text>
+        <TouchableOpacity onPress={() => handleAddressPress(item.address)}>
+          <Text style={styles.addressText}>{formatWalletAddress(item.address)}</Text>
+        </TouchableOpacity>
 
         {isEditing ? (
           <View style={styles.notesEditContainer}>
@@ -105,10 +114,12 @@ const ScanHistory: React.FC = () => {
             />
             <View style={styles.editActions}>
               <TouchableOpacity onPress={handleSaveNotes} style={styles.saveEditButton}>
-                <FontAwesomeIcon icon={faCheck} size={16} color={colors.success} />
+                <FontAwesomeIcon icon={faCheck} size={20} color={colors.themeBackground} />
+                <Text style={styles.editButtonText}>Save</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleCancelEdit} style={styles.cancelEditButton}>
-                <FontAwesomeIcon icon={faTimes} size={16} color={colors.error} />
+                <FontAwesomeIcon icon={faTimes} size={20} color={colors.themeText} />
+                <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -130,7 +141,7 @@ const ScanHistory: React.FC = () => {
             <FontAwesomeIcon
               icon={item.isFavorite ? faHeartBroken : faHeart}
               size={16}
-              color={item.isFavorite ? colors.error : colors.themeTextSecondary}
+              color={item.isFavorite ? colors.lemon : colors.themeTextSecondary}
             />
             <Text
               style={[
@@ -146,7 +157,7 @@ const ScanHistory: React.FC = () => {
             onPress={() => handleEditNotes(item)}
             style={styles.actionButton}
           >
-            <FontAwesomeIcon icon={faEdit} size={16} color={colors.info} />
+            <FontAwesomeIcon icon={faEdit} size={16} color={colors.themeTextSecondary} />
             <Text style={styles.actionButtonText}>Edit Notes</Text>
           </TouchableOpacity>
 
@@ -154,7 +165,7 @@ const ScanHistory: React.FC = () => {
             onPress={() => handleDeleteWallet(item)}
             style={styles.actionButton}
           >
-            <FontAwesomeIcon icon={faTrash} size={16} color={colors.error} />
+            <FontAwesomeIcon icon={faTrash} size={16} color={colors.themeTextSecondary} />
             <Text style={styles.actionButtonText}>Delete</Text>
           </TouchableOpacity>
         </View>
@@ -185,7 +196,7 @@ const ScanHistory: React.FC = () => {
           <FontAwesomeIcon
             icon={faHeart}
             size={18}
-            color={showFavoritesOnly ? colors.themeBackground : colors.error}
+            color={showFavoritesOnly ? colors.themeBackground : colors.themeTextSecondary}
           />
           <Text
             style={[
@@ -280,8 +291,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   filterButtonActive: {
-    backgroundColor: colors.error,
-    borderColor: colors.error,
+    backgroundColor: colors.lemon,
+    borderColor: colors.lemon,
   },
   filterButtonText: {
     marginLeft: 8,
@@ -298,11 +309,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   walletItem: {
     backgroundColor: colors.themeSurface,
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: colors.themeBorder,
+    marginBottom: 12,
+    shadowColor: colors.themeBorder,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   walletHeader: {
     flexDirection: 'row',
@@ -310,20 +324,22 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  walletTypeContainer: {
+  walletInfo: {
+    flex: 1,
+  },
+  walletTypeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    marginBottom: 4,
   },
-  walletTypeBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
+  walletTypeIcon: {
+    marginRight: 4,
   },
   walletTypeText: {
-    color: 'white',
-    fontSize: 12,
+    fontSize: 14,
+    paddingLeft: 4,
     fontWeight: '600',
+    color: colors.themeTextSecondary,
   },
   timestampText: {
     fontSize: 12,
@@ -335,8 +351,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     color: colors.themeText,
     marginBottom: 12,
     padding: 8,
-    backgroundColor: colors.themeSurfaceLight,
-    borderRadius: 6,
+    textDecorationLine: 'underline',
+    textDecorationColor: colors.lemon,
   },
   notesContainer: {
     marginBottom: 16,
@@ -370,14 +386,34 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: 12,
   },
   saveEditButton: {
-    padding: 8,
-    backgroundColor: colors.success,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 6,
+    backgroundColor: colors.lemon,
+    opacity: 0.9,
   },
   cancelEditButton: {
-    padding: 8,
-    backgroundColor: colors.error,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 6,
+    backgroundColor: colors.themeSurfaceLight,
+    opacity: 0.9,
+  },
+  editButtonText: {
+    marginLeft: 6,
+    fontSize: 12,
+    color: colors.themeBackground,
+    fontWeight: '600',
+  },
+  cancelButtonText: {
+    marginLeft: 6,
+    fontSize: 12,
+    color: colors.themeText,
+    fontWeight: '600',
   },
   actionsContainer: {
     flexDirection: 'row',
@@ -401,7 +437,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     color: colors.themeTextSecondary,
   },
   favoriteActionText: {
-    color: colors.error,
+    color: colors.lemon,
     fontWeight: '600',
   },
   emptyState: {

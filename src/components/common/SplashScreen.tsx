@@ -52,7 +52,9 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationComplete }) => {
             useNativeDriver: true,
           }),
         ]).start(() => {
-          RNSplashScreen.hide();
+          if (RNSplashScreen) {
+            RNSplashScreen.hide();
+          }
           onAnimationComplete?.();
         });
       }, 500);

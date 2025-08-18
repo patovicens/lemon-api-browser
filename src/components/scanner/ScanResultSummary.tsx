@@ -14,8 +14,9 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useScanner } from '../../contexts/ScannerContext';
 import { WalletScanResult } from '../../types/crypto';
-import { formatWalletAddress, getWalletTypeDisplayName, getWalletTypeColor } from '../../utils/walletUtils';
+import { formatWalletAddress, getWalletTypeDisplayName } from '../../utils/walletUtils';
 import { ThemeColors } from '../../theme';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 type ScannerStackParamList = {
   ScannerMain: undefined;
@@ -48,8 +49,11 @@ const ScanResultSummary: React.FC = () => {
   };
 
   const handleCopyAddress = () => {
-    // TODO: use clipboard api
-    Alert.alert('Copied', 'Address copied to clipboard');
+    const contentToCopy = scanResult.type === 'UNKNOWN' 
+      ? (scanResult.rawContent || scanResult.address)
+      : scanResult.address;
+    Clipboard.setString(contentToCopy);
+    Alert.alert('Copied', 'Content copied to clipboard');
   };
 
   const toggleFavorite = () => {
@@ -93,16 +97,9 @@ const ScanResultSummary: React.FC = () => {
       <View style={styles.content}>
         <View style={styles.resultCard}>
           <View style={styles.walletTypeContainer}>
-            <View
-              style={[
-                styles.walletTypeBadge,
-                { backgroundColor: getWalletTypeColor(scanResult.type) },
-              ]}
-            >
-              <Text style={styles.walletTypeText}>
-                {getWalletTypeDisplayName(scanResult.type)}
-              </Text>
-            </View>
+            <Text style={styles.walletTypeText}>
+              {getWalletTypeDisplayName(scanResult.type)}
+            </Text>
           </View>
 
           {scanResult.type === 'UNKNOWN' ? (
@@ -155,7 +152,7 @@ const ScanResultSummary: React.FC = () => {
               <FontAwesomeIcon
                 icon={isFavorite ? faHeart : faHeartBroken}
                 size={20}
-                color={isFavorite ? colors.error : colors.themeTextSecondary}
+                color={isFavorite ? colors.lemon : colors.themeTextSecondary}
               />
             </TouchableOpacity>
 
@@ -202,7 +199,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.opacityBlack,
+    backgroundColor: colors.themeSurfaceLight,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
@@ -213,25 +210,23 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   resultCard: {
     backgroundColor: colors.themeSurface,
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 20,
     marginBottom: 20,
-    borderWidth: 1,
-    borderColor: colors.border,
+    shadowColor: colors.themeBorder,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   walletTypeContainer: {
     alignItems: 'center',
     marginBottom: 20,
   },
-  walletTypeBadge: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
   walletTypeText: {
-    color: 'white',
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: '600',
+    color: colors.themeText,
   },
   addressLabel: {
     fontSize: 16,
@@ -246,8 +241,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: 16,
     textAlign: 'center',
     padding: 12,
-    backgroundColor: colors.themeSurfaceLight,
-    borderRadius: 8,
   },
   copyButton: {
     flexDirection: 'row',
@@ -305,8 +298,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.themeSurfaceLight,
   },
   favoriteToggleActive: {
-    borderColor: colors.error,
-    backgroundColor: colors.errorLight,
+    borderColor: colors.lemon,
+    backgroundColor: colors.themeSurfaceLight,
   },
   saveButton: {
     flex: 1,
