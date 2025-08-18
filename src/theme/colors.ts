@@ -59,6 +59,8 @@ export const colors = {
   walletADA: '#0033AD',
   walletDOT: '#E6007A',
   walletLINK: '#2A5ADA',
+  walletSOL: '#9945FF', 
+  walletTRX: '#FF5B5B', 
   walletUnknown: '#6B7280',
 } as const;
 

@@ -53,7 +53,12 @@ const ExchangeNavigator = () => {
 
 const ScannerNavigator = () => {
   return (
-    <ScannerStack.Navigator id={undefined} screenOptions={{ headerShown: false }}>
+    <ScannerStack.Navigator 
+      id={undefined} 
+      screenOptions={{ 
+        headerShown: false
+      }}
+    >
       <ScannerStack.Screen name="ScannerMain" component={ScannerScreen} />
       <ScannerStack.Screen name="ScanResult" component={ScanResultSummary} />
       <ScannerStack.Screen name="ScanHistory" component={ScanHistory} />
@@ -82,6 +87,7 @@ const MainTabs = () => {
         headerShown: false,
         tabBarActiveTintColor: colors.lemon,
         tabBarInactiveTintColor: colors.themeTextSecondary,
+        tabBarHideOnKeyboard: true,
         tabBarStyle: {
           backgroundColor: colors.themeSurface,
           borderTopWidth: 1,
@@ -118,6 +124,7 @@ const MainTabs = () => {
         options={{
           title: 'Scanner',
           tabBarIcon: ScannerIcon,
+          tabBarStyle: { display: 'none' }
         }}
       />
 

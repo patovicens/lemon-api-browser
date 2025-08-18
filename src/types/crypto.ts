@@ -49,13 +49,14 @@ export interface CryptoListResponse {
   per_page: number;
 }
 
-export type WalletType = 'BTC' | 'ETH' | 'LTC' | 'BCH' | 'XRP' | 'ADA' | 'DOT' | 'LINK' | 'UNKNOWN';
+export type WalletType = 'BTC' | 'ETH' | 'LTC' | 'BCH' | 'XRP' | 'ADA' | 'DOT' | 'LINK' | 'SOL' | 'TRX' | 'UNKNOWN';
 
 export interface WalletScanResult {
   address: string;
   type: WalletType;
   timestamp: number;
   isFavorite: boolean;
+  rawContent?: string;
 }
 
 export interface ScannedWallet {

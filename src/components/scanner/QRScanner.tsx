@@ -1,68 +1,93 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
-  Dimensions,
   Platform,
+  PermissionsAndroid,
+
+  Dimensions,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faHistory, faQrcode, faMobileAlt } from '@fortawesome/free-solid-svg-icons';
+import { faClock, faMobileAlt, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '../../contexts/ThemeContext';
+import { Camera, CameraType } from 'react-native-camera-kit';
 
 import { ThemeColors } from '../../theme';
-
-const { width, height } = Dimensions.get('window');
-const SCAN_AREA_SIZE = Math.min(width, height) * 0.7;
+import { detectWalletType } from '../../utils/walletUtils';
 
 import { QRScannerProps } from '../../types/scanner';
 
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const FRAME_SIZE = SCREEN_WIDTH * 0.7; // 70% of screen width
+const HORIZONTAL_OFFSET = (SCREEN_WIDTH - FRAME_SIZE) / 2;
+const VERTICAL_OFFSET = (SCREEN_HEIGHT - FRAME_SIZE) / 2;
+
+import { useNavigation } from '@react-navigation/native';
+
 const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onShowHistory }) => {
+  const navigation = useNavigation();
   const { colors } = useTheme();
+  const [isProcessing, setIsProcessing] = useState(false);
+  
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [isSimulator, setIsSimulator] = useState<boolean>(false);
   const styles = createStyles(colors);
 
   useEffect(() => {
     checkSimulator();
-    checkCameraPermission();
   }, []);
 
-  const checkSimulator = () => {
-    // Check if running on iOS Simulator or Android Emulator
-    if (Platform.OS === 'ios') {
-      // iOS Simulator detection
-      const simulatorDetected = Platform.isPad || Platform.isTV || __DEV__;
-      setIsSimulator(simulatorDetected);
-    } else if (Platform.OS === 'android') {
-      // Android Emulator detection
-      const emulatorDetected = __DEV__;
-      setIsSimulator(emulatorDetected);
-    }
-  };
+  // Handle camera setup and cleanup on screen focus/blur
+  useFocusEffect(
+    useCallback(() => {
+      checkCameraPermission();
+      setIsProcessing(false);
+
+      return () => {
+        // Cleanup when screen loses focus
+        setIsProcessing(false);
+        setHasPermission(null); 
+      };
+    }, [])
+  );
 
   const checkCameraPermission = async () => {
-    try {
-      // TODO: use react-native-permissions
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          {
+            title: "Camera Permission",
+            message: "This app needs camera access to scan QR codes.",
+            buttonNeutral: "Ask Me Later",
+            buttonNegative: "Cancel",
+            buttonPositive: "OK"
+          }
+        );
+        setHasPermission(granted === PermissionsAndroid.RESULTS.GRANTED);
+      } catch (err) {
+        console.warn(err);
+        setHasPermission(false);
+      }
+    } else {
+      // iOS permissions are handled by the Camera component
       setHasPermission(true);
-    } catch (error) {
-      console.error('Error checking camera permission:', error);
-      setHasPermission(false);
     }
   };
 
-  const requestCameraPermission = () => {
-    Alert.alert(
-      'Camera Permission Required',
-      'This app needs camera access to scan QR codes. Please grant camera permission in your device settings.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Settings', onPress: () => {} }, // TODO: open settings
-      ]
-    );
+  const checkSimulator = () => {
+    if (Platform.OS === 'ios') {
+      const simulatorDetected = Platform.isPad || Platform.isTV;
+      setIsSimulator(simulatorDetected);
+    } else if (Platform.OS === 'android') {
+      // Android Emulator detection - disabled for testing
+      const emulatorDetected = false;
+      setIsSimulator(emulatorDetected);
+    }
   };
 
   if (hasPermission === null) {
@@ -84,7 +109,7 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
             This app needs camera access to scan QR codes.
           </Text>
           <TouchableOpacity
-            onPress={requestCameraPermission}
+            onPress={checkCameraPermission}
             style={styles.permissionButton}
           >
             <Text style={styles.permissionButtonText}>Grant Permission</Text>
@@ -99,16 +124,18 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
       <SafeAreaView style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>QR Scanner</Text>
-          <TouchableOpacity onPress={onShowHistory} style={styles.historyButton}>
-            <FontAwesomeIcon icon={faHistory} size={20} color={colors.themeText} />
+          <TouchableOpacity 
+            onPress={() => navigation.goBack()} 
+            style={[styles.closeButton, { borderColor: colors.themeBorder }]}
+          >
+            <FontAwesomeIcon icon={faXmark} size={24} color={colors.themeText} />
           </TouchableOpacity>
         </View>
 
         {/* Simulator Message */}
         <View style={styles.simulatorContainer}>
           <View style={styles.simulatorIcon}>
-            <FontAwesomeIcon icon={faMobileAlt} size={80} color={colors.lemon} />
+            <FontAwesomeIcon icon={faMobileAlt} size={80} color={colors.themeText} />
           </View>
           
           <Text style={styles.simulatorTitle}>Physical Device Required</Text>
@@ -124,11 +151,11 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
           <View style={styles.simulatorFeatures}>
             <Text style={styles.featuresTitle}>What you can test:</Text>
             <View style={styles.featureItem}>
-              <FontAwesomeIcon icon={faHistory} size={16} color={colors.lemon} />
+              <FontAwesomeIcon icon={faClock} size={16} color={colors.themeText} />
               <Text style={styles.featureText}>View scan history</Text>
             </View>
             <View style={styles.featureItem}>
-              <FontAwesomeIcon icon={faQrcode} size={16} color={colors.lemon} />
+              <FontAwesomeIcon icon={faClock} size={16} color={colors.themeText} />
               <Text style={styles.featureText}>Manage saved wallets</Text>
             </View>
           </View>
@@ -144,58 +171,97 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
     );
   }
 
+
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
+      {/* Minimal Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Scan QR Code</Text>
-        <TouchableOpacity onPress={onShowHistory} style={styles.historyButton}>
-          <FontAwesomeIcon icon={faHistory} size={20} color={colors.themeText} />
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('Home' as never)} // TODO: fix this
+          style={[styles.closeButton, { borderColor: colors.themeBorder }]}
+        >
+          <FontAwesomeIcon icon={faXmark} size={24} color={colors.themeText} />
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          onPress={onShowHistory} 
+          style={[styles.historyButton, { borderColor: colors.themeBorder }]}
+        >
+          <FontAwesomeIcon icon={faClock} size={20} color={colors.themeText} />
         </TouchableOpacity>
       </View>
 
-      {/* Camera Placeholder for Physical Device */}
+      {/* Camera Component */}
       <View style={styles.cameraContainer}>
-        <View style={styles.cameraPlaceholder}>
-          <FontAwesomeIcon icon={faQrcode} size={80} color={colors.lemon} />
-          <Text style={styles.cameraPlaceholderText}>Camera Ready</Text>
-          <Text style={styles.cameraPlaceholderSubtext}>
-            Camera component would be rendered here on physical device
-          </Text>
-        </View>
-        
-        {/* Scan Area Overlay */}
-        <View style={styles.scanAreaOverlay}>
-          <View style={styles.scanArea} />
-          
-          {/* Corner Indicators */}
-          <View style={[styles.corner, styles.topLeft]} />
-          <View style={[styles.corner, styles.topRight]} />
-          <View style={[styles.corner, styles.bottomLeft]} />
-          <View style={[styles.corner, styles.bottomRight]} />
-        </View>
+                <View style={styles.scanContainer}>
+          <Camera
+            key={isProcessing ? 'processing' : 'ready'}
+            style={styles.camera}
+            cameraType={CameraType.Back}
+            scanBarcode={true}
+            onReadCode={(event) => {
+              // Prevent multiple rapid scans
+              if (isProcessing) return;
+              
+              // Ensure we have a code value
+              if (!event.nativeEvent.codeStringValue) return;
 
-        {/* Instructions */}
-        <View style={styles.instructionsContainer}>
-          <Text style={styles.instructionsText}>
-            Position the QR code within the frame to scan
-          </Text>
-        </View>
-      </View>
+              setIsProcessing(true);
+              
+              const content = event.nativeEvent.codeStringValue;
+              const walletType = detectWalletType(content);
+              
+              const walletResult = {
+                address: content,
+                type: walletType,
+                timestamp: Date.now(),
+                isFavorite: false,
+                rawContent: content,
+              };
 
-      {/* Controls */}
-      <View style={styles.controlsContainer}>
-        <TouchableOpacity style={styles.controlButton}>
-          <FontAwesomeIcon
-            icon={faQrcode}
-            size={24}
-            color={colors.themeText}
+              // Call the callback and navigate away
+              if (_onScanResult) {
+                _onScanResult(walletResult);
+                // Reset processing state after a short delay
+                setTimeout(() => {
+                  setIsProcessing(false);
+                }, 500);
+              }
+            }}
+          showFrame={false}
           />
-          <Text style={styles.controlButtonText}>
-            Camera Controls
-          </Text>
-        </TouchableOpacity>
+          
+          {/* Custom Frame Corners */}
+          <View style={styles.scanFrame}>
+            {/* Top Left */}
+            <View style={[styles.corner, styles.topLeft]}>
+              <View style={styles.cornerHorizontal} />
+              <View style={styles.cornerVertical} />
+            </View>
+            
+            {/* Top Right */}
+            <View style={[styles.corner, styles.topRight]}>
+              <View style={styles.cornerHorizontal} />
+              <View style={styles.cornerVertical} />
+            </View>
+            
+            {/* Bottom Left */}
+            <View style={[styles.corner, styles.bottomLeft]}>
+              <View style={styles.cornerHorizontal} />
+              <View style={styles.cornerVertical} />
+            </View>
+            
+            {/* Bottom Right */}
+            <View style={[styles.corner, styles.bottomRight]}>
+              <View style={styles.cornerHorizontal} />
+              <View style={styles.cornerVertical} />
+            </View>
+          </View>
+        </View>
       </View>
+
+      {/* Removed camera controls as they're not needed */}
     </SafeAreaView>
   );
 };
@@ -206,29 +272,46 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.themeBackground,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
     paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: colors.themeBackground,
+    paddingTop: Platform.OS === 'ios' ? 60 : 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: colors.themeText,
+  closeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.themeSurface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
   },
   historyButton: {
-    padding: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.themeSurface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
   },
   cameraContainer: {
+    flex: 1,
+    backgroundColor: colors.themeBackground,
+  },
+  scanContainer: {
     flex: 1,
     position: 'relative',
   },
   camera: {
     flex: 1,
   },
-  scanAreaOverlay: {
+  scanFrame: {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -237,87 +320,44 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  scanArea: {
-    width: SCAN_AREA_SIZE,
-    height: SCAN_AREA_SIZE,
-    borderWidth: 2,
-    borderColor: colors.lemon,
-    borderRadius: 20,
-    backgroundColor: 'transparent',
-  },
   corner: {
     position: 'absolute',
     width: 20,
     height: 20,
-    borderColor: colors.lemon,
-    borderWidth: 3,
+  },
+  cornerHorizontal: {
+    position: 'absolute',
+    width: 20,
+    height: 2,
+    backgroundColor: colors.lemon,
+  },
+  cornerVertical: {
+    position: 'absolute',
+    width: 2,
+    height: 20,
+    backgroundColor: colors.lemon,
   },
   topLeft: {
-    top: (height - SCAN_AREA_SIZE) / 2 - 10,
-    left: (width - SCAN_AREA_SIZE) / 2 - 10,
-    borderBottomWidth: 0,
-    borderRightWidth: 0,
-    borderTopLeftRadius: 20,
+    top: VERTICAL_OFFSET,
+    left: HORIZONTAL_OFFSET,
   },
   topRight: {
-    top: (height - SCAN_AREA_SIZE) / 2 - 10,
-    right: (width - SCAN_AREA_SIZE) / 2 - 10,
-    borderBottomWidth: 0,
-    borderLeftWidth: 0,
-    borderTopRightRadius: 20,
+    top: VERTICAL_OFFSET,
+    right: HORIZONTAL_OFFSET,
+    transform: [{ rotate: '90deg' }],
   },
   bottomLeft: {
-    bottom: (height - SCAN_AREA_SIZE) / 2 - 10,
-    left: (width - SCAN_AREA_SIZE) / 2 - 10,
-    borderTopWidth: 0,
-    borderRightWidth: 0,
-    borderBottomLeftRadius: 20,
+    top: VERTICAL_OFFSET + FRAME_SIZE - 20, // subtract corner size
+    left: HORIZONTAL_OFFSET,
+    transform: [{ rotate: '-90deg' }],
   },
   bottomRight: {
-    bottom: (height - SCAN_AREA_SIZE) / 2 - 10,
-    right: (width - SCAN_AREA_SIZE) / 2 - 10,
-    borderTopWidth: 0,
-    borderLeftWidth: 0,
-    borderBottomRightRadius: 20,
+    top: VERTICAL_OFFSET + FRAME_SIZE - 20, // subtract corner size
+    right: HORIZONTAL_OFFSET,
+    transform: [{ rotate: '180deg' }],
   },
-  instructionsContainer: {
-    position: 'absolute',
-    bottom: 120,
-    left: 20,
-    right: 20,
-    alignItems: 'center',
-  },
-  instructionsText: {
-    fontSize: 16,
-    color: colors.themeText,
-    textAlign: 'center',
-    backgroundColor: colors.opacityBlack,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  controlsContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    backgroundColor: colors.themeBackground,
-    alignItems: 'center',
-  },
-  controlButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: colors.themeSurface,
-    borderRadius: 25,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  controlButtonText: {
-    marginLeft: 8,
-    fontSize: 16,
-    color: colors.themeText,
-    fontWeight: '500',
-  },
+
+
   permissionContainer: {
     flex: 1,
     justifyContent: 'center',

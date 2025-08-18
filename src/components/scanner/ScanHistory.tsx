@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faHeart, faHeartBroken, faTrash, faEdit, faTimes, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faHeartBroken, faTrash, faEdit, faTimes, faCheck, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useScanner } from '../../contexts/ScannerContext';
@@ -165,13 +165,16 @@ const ScanHistory: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Back</Text>
+          <FontAwesomeIcon icon={faArrowLeft} size={16} color={colors.themeText} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Scan History</Text>
         <View style={styles.placeholder} />
       </View>
 
       <View style={styles.filterContainer}>
+        <Text style={styles.filterTitle}>
+          {showFavoritesOnly ? 'Favorite Wallets' : 'All Wallets'}
+        </Text>
         <TouchableOpacity
           onPress={() => setShowFavoritesOnly(!showFavoritesOnly)}
           style={[
@@ -181,7 +184,7 @@ const ScanHistory: React.FC = () => {
         >
           <FontAwesomeIcon
             icon={faHeart}
-            size={16}
+            size={18}
             color={showFavoritesOnly ? colors.themeBackground : colors.error}
           />
           <Text
@@ -190,7 +193,7 @@ const ScanHistory: React.FC = () => {
               showFavoritesOnly && styles.filterButtonTextActive,
             ]}
           >
-            Favorites Only
+            {showFavoritesOnly ? 'Show All' : 'Show Favorites'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -248,6 +251,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     fontWeight: '600',
     color: colors.themeText,
   },
+  filterTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.themeText,
+  },
   placeholder: {
     width: 60,
   },
@@ -256,25 +264,29 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: colors.themeBorder,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   filterButton: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderWidth: 1,
     borderColor: colors.themeBorder,
     borderRadius: 20,
-    alignSelf: 'flex-start',
     backgroundColor: colors.themeSurfaceLight,
+    minWidth: 150,
+    justifyContent: 'center',
   },
   filterButtonActive: {
     backgroundColor: colors.error,
-    opacity: 1,
+    borderColor: colors.error,
   },
   filterButtonText: {
     marginLeft: 8,
-    fontSize: 14,
+    fontSize: 15,
     color: colors.themeTextSecondary,
     fontWeight: '500',
   },
@@ -291,7 +303,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.themeBorder,
   },
   walletHeader: {
     flexDirection: 'row',

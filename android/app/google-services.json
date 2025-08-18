@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "555057284072",
+    "project_id": "lemon-challenge-b86bc",
+    "storage_bucket": "lemon-challenge-b86bc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:555057284072:android:05c63eb671859420da1a5d",
+        "android_client_info": {
+          "package_name": "com.lemonchallenge"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "555057284072-gh5cba7ldv2u1kcmr0t9v7os7vuoo987.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lemonchallenge",
+            "certificate_hash": "becc80a9ba8ffc26fbdda7d51214ac53bb3fe584"
+          }
+        },
+        {
+          "client_id": "555057284072-0l787shsjnukmqj5euhguj3anmj8d6si.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOtcQSOfCFe7X7KUo0ACtQU2B72uSrDv0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "555057284072-0l787shsjnukmqj5euhguj3anmj8d6si.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "555057284072-9a6ki7sf5pgpikka3kaft4f2upgsi8fj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.pvicens.lemonchallenge"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

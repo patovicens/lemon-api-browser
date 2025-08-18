@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faHeart, faHeartBroken, faSave, faCopy, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faHeartBroken, faSave, faCopy, faArrowLeft, faClock } from '@fortawesome/free-solid-svg-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useScanner } from '../../contexts/ScannerContext';
@@ -56,12 +56,23 @@ const ScanResultSummary: React.FC = () => {
     setIsFavorite(!isFavorite);
   };
 
+  const confirmDiscard = (action: () => void) => {
+    Alert.alert(
+      'Discard Changes?',
+      'Any unsaved changes will be lost. Do you want to continue?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Discard', style: 'destructive', onPress: action }
+      ]
+    );
+  };
+
   const handleBack = () => {
-    navigation.goBack();
+    confirmDiscard(() => navigation.goBack());
   };
 
   const handleScanAgain = () => {
-    navigation.navigate('ScannerMain' as never);
+    confirmDiscard(() => navigation.navigate('ScannerMain' as never));
   };
 
   return (
@@ -71,7 +82,12 @@ const ScanResultSummary: React.FC = () => {
           <FontAwesomeIcon icon={faArrowLeft} size={20} color={colors.themeText} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Scan Result</Text>
-        <View style={styles.placeholder} />
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('ScanHistory' as never)} //TODO: remove this as never
+          style={[styles.historyButton, { borderColor: colors.themeBorder }]}
+        >
+          <FontAwesomeIcon icon={faClock} size={20} color={colors.themeText} />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
@@ -89,13 +105,31 @@ const ScanResultSummary: React.FC = () => {
             </View>
           </View>
 
-          <Text style={styles.addressLabel}>Wallet Address:</Text>
-          <Text style={styles.addressText}>{formatWalletAddress(scanResult.address)}</Text>
-          
-          <TouchableOpacity onPress={handleCopyAddress} style={styles.copyButton}>
-            <FontAwesomeIcon icon={faCopy} size={16} color={colors.themeTextSecondary} />
-            <Text style={styles.copyButtonText}>Copy Address</Text>
-          </TouchableOpacity>
+          {scanResult.type === 'UNKNOWN' ? (
+            <>
+              <Text style={styles.addressLabel}>Scanned Content:</Text>
+              <Text style={styles.addressText}>{scanResult.rawContent || scanResult.address}</Text>
+              
+              <TouchableOpacity onPress={handleCopyAddress} style={styles.copyButton}>
+                <FontAwesomeIcon icon={faCopy} size={16} color={colors.themeTextSecondary} />
+                <Text style={styles.copyButtonText}>Copy Content</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.unknownNote}>
+                This QR code doesn't match any known wallet address format, but you can still save it.
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text style={styles.addressLabel}>Wallet Address:</Text>
+              <Text style={styles.addressText}>{formatWalletAddress(scanResult.address)}</Text>
+              
+              <TouchableOpacity onPress={handleCopyAddress} style={styles.copyButton}>
+                <FontAwesomeIcon icon={faCopy} size={16} color={colors.themeTextSecondary} />
+                <Text style={styles.copyButtonText}>Copy Address</Text>
+              </TouchableOpacity>
+            </>
+          )}
 
           <View style={styles.notesContainer}>
             <Text style={styles.notesLabel}>Notes (optional):</Text>
@@ -114,8 +148,8 @@ const ScanResultSummary: React.FC = () => {
             <TouchableOpacity
               onPress={toggleFavorite}
               style={[
-                styles.favoriteButton,
-                isFavorite && styles.favoriteButtonActive,
+                styles.favoriteToggle,
+                isFavorite && styles.favoriteToggleActive,
               ]}
             >
               <FontAwesomeIcon
@@ -123,19 +157,13 @@ const ScanResultSummary: React.FC = () => {
                 size={20}
                 color={isFavorite ? colors.error : colors.themeTextSecondary}
               />
-              <Text
-                style={[
-                  styles.favoriteButtonText,
-                  isFavorite && styles.favoriteButtonTextActive,
-                ]}
-              >
-                {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
-              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
               <FontAwesomeIcon icon={faSave} size={20} color={colors.themeBackground} />
-              <Text style={styles.saveButtonText}>Save Wallet</Text>
+              <Text style={styles.saveButtonText}>
+                Save {isFavorite ? 'to Favorites' : 'Wallet'}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -170,8 +198,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     fontWeight: '600',
     color: colors.themeText,
   },
-  placeholder: {
+  historyButton: {
     width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.opacityBlack,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
   },
   content: {
     flex: 1,
@@ -227,6 +261,15 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     fontSize: 14,
     color: colors.themeTextSecondary,
   },
+  unknownNote: {
+    fontSize: 14,
+    color: colors.themeTextTertiary,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 8,
+    marginBottom: 16,
+    paddingHorizontal: 20,
+  },
   notesContainer: {
     marginBottom: 20,
   },
@@ -247,34 +290,26 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     textAlignVertical: 'top',
   },
   actionsContainer: {
-    gap: 12,
-  },
-  favoriteButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 12,
+  },
+  favoriteToggle: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: 22,
     backgroundColor: colors.themeSurfaceLight,
-    opacity: 0.8,
   },
-  favoriteButtonActive: {
+  favoriteToggleActive: {
     borderColor: colors.error,
     backgroundColor: colors.errorLight,
-    opacity: 1,
-  },
-  favoriteButtonText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: colors.themeTextSecondary,
-  },
-  favoriteButtonTextActive: {
-    color: colors.error,
-    fontWeight: '600',
   },
   saveButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
