@@ -10,9 +10,6 @@ interface GoogleSignInError extends Error {
 export const configureGoogleSignIn = () => {
   GoogleSignin.configure({
     webClientId: GOOGLE_WEB_CLIENT_ID,
-    offlineAccess: true,
-    hostedDomain: '',
-    forceCodeForRefreshToken: true,
   });
 };
 

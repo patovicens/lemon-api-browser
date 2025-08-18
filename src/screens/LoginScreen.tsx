@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -16,13 +16,18 @@ import {
   faSun,
   faMoon
 } from '@fortawesome/free-solid-svg-icons';
-import { signIn } from '../utils/googleAuth';
+import { configureGoogleSignIn, signIn } from '../utils/googleAuth';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { ThemeColors } from '../theme';
 
 const LoginScreen: React.FC = () => {
   const { handleLogin } = useAuth();
+
+  useEffect(() => {
+    configureGoogleSignIn();
+  }, []);
+
   const { colors, theme, toggleTheme } = useTheme();
   const styles = createStyles(colors);
   

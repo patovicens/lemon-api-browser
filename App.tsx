@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AppNavigator from './src/navigation/AppNavigator';
@@ -8,7 +8,6 @@ import { HomeProvider } from './src/contexts/HomeContext';
 import { ExchangeProvider } from './src/contexts/ExchangeContext';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import { ScannerProvider } from './src/contexts/ScannerContext';
-import { configureGoogleSignIn } from './src/utils/googleAuth';
 import GlobalStatusBar from './src/components/common/GlobalStatusBar';
 import SplashScreen from './src/components/common/SplashScreen';
 
@@ -23,10 +22,6 @@ const queryClient = new QueryClient({
 
 const App = () => {
   const [showSplash, setShowSplash] = useState(true);
-
-  useEffect(() => {
-    configureGoogleSignIn();
-  }, []);
 
   const handleSplashComplete = () => {
     setShowSplash(false);

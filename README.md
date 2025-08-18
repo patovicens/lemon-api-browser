@@ -23,6 +23,25 @@ A React Native cryptocurrency trading and management application with a modern, 
 - **Android Studio** (for Android development)
 - **Java Development Kit (JDK)** 17 or higher
 
+### Environment Setup Notes
+
+If you're new to React Native Android development (not required if you already have Android Studio set up), you'll need to configure your environment:
+
+```bash
+# These environment variables are needed for general React Native Android development
+# If you already have Android Studio installed and working, you likely have this configured
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+```
+
+Note: Android SDK paths vary by OS:
+- macOS: `$HOME/Library/Android/sdk`
+- Windows: `%LOCALAPPDATA%\Android\Sdk`
+- Linux: `$HOME/Android/Sdk`
+
+These variables are typically set up during Android Studio installation. They're not specific to this project but are required for React Native Android development in general.
+
 ### Installation
 
 1. **Clone the repository**
