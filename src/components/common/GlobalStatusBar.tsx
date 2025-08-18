@@ -3,13 +3,13 @@ import { StatusBar } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 
 const GlobalStatusBar: React.FC = () => {
-  const { theme, colors } = useTheme();
+  const { theme } = useTheme();
 
   return (
     <StatusBar 
       barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} 
-      backgroundColor={colors.themeBackground}
-      translucent={false}
+      backgroundColor="transparent"
+      translucent={true}
     />
   );
 };

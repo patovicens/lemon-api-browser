@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Animated,
   TextInput,
+  Platform,
 } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faUserCircle, faRotate, faSearch, faTimes, faArrowUpWideShort, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
@@ -49,7 +50,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 
   const toggleSearch = () => {
     if (isSearchActive) {
-      // Close search
+      searchInputRef.current?.blur();
       Animated.parallel([
         Animated.timing(searchAnimation, {
           toValue: 0,
@@ -113,6 +114,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           <TouchableOpacity 
             onPress={toggleTheme}
             style={styles.themeToggleButton}
+            focusable={false}
           >
             <FontAwesomeIcon 
               icon={theme === 'dark' ? faSun : faMoon} 
@@ -229,7 +231,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   header: {
     flexDirection: 'column',
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingTop: Platform.OS === 'android' ? 20 : 8,
+    paddingBottom: 8,
     backgroundColor: colors.themeSurface,
     borderBottomWidth: 1,
     borderBottomColor: colors.themeBorder,

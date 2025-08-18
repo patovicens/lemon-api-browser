@@ -8,7 +8,7 @@ interface GoogleSignInError extends Error {
 
 export const configureGoogleSignIn = () => {
   GoogleSignin.configure({
-    webClientId: '555057284072-9a6ki7sf5pgpikka3kaft4f2upgsi8fj.apps.googleusercontent.com',
+    webClientId: '555057284072-0l787shsjnukmqj5euhguj3anmj8d6si.apps.googleusercontent.com',
     offlineAccess: true,
     hostedDomain: '',
     forceCodeForRefreshToken: true,

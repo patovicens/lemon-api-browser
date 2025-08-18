@@ -278,7 +278,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     right: 0,
     zIndex: 1,
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 60 : 20,
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },

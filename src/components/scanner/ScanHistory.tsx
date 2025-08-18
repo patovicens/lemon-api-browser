@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   TextInput,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -168,7 +169,6 @@ const ScanHistory: React.FC = () => {
           <FontAwesomeIcon icon={faArrowLeft} size={16} color={colors.themeText} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Scan History</Text>
-        <View style={styles.placeholder} />
       </View>
 
       <View style={styles.filterContainer}>
@@ -232,19 +232,18 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    justifyContent: 'center',
+    paddingTop: Platform.OS === 'android' ? 12 : 0,
+    paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.themeBorder,
+    position: 'relative',
   },
   backButton: {
+    position: 'absolute',
+    left: 10,
     padding: 10,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: colors.themeText,
-    fontWeight: '500',
+    zIndex: 1,
   },
   headerTitle: {
     fontSize: 18,
@@ -252,7 +251,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     color: colors.themeText,
   },
   filterTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
     color: colors.themeText,
   },

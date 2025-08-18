@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -103,6 +103,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   directionToggle: {
     flexDirection: 'row',
     marginHorizontal: 40,
+    marginTop: Platform.OS === 'android' ? 20 : 8,
     backgroundColor: colors.themeSurfaceLight,
     borderRadius: 12,
     padding: 4,

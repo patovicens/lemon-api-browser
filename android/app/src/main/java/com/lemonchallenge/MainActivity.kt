@@ -1,5 +1,7 @@
 package com.lemonchallenge
-import android.os.Bundle;
+import android.os.Bundle
+import android.view.WindowManager
+import android.graphics.Color
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -9,8 +11,15 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate
 class MainActivity : ReactActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(null)
-  }
+        super.onCreate(null)
+        
+        // Make status bar and navigation bar transparent
+        window.apply {
+            addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            statusBarColor = Color.TRANSPARENT
+            // Navigation bar color is handled by styles.xml
+        }
+    }
 
   /**
    * Returns the name of the main component registered from JavaScript. This is used to schedule
