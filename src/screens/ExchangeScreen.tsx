@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Platform,
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -182,7 +181,6 @@ const ExchangeScreen: React.FC = () => {
           <View>
             <Animated.View style={animatedFromSectionStyle}>
               <CurrencyInputSection
-                label={state.conversionDirection === 'crypto-to-fiat' ? 'From (Crypto)' : 'From (Fiat)'}
                 direction={state.conversionDirection}
                 sectionType="from"
                 selectedCrypto={selectedCrypto}
@@ -210,7 +208,6 @@ const ExchangeScreen: React.FC = () => {
 
             <Animated.View style={animatedToSectionStyle}>
               <CurrencyInputSection
-                label={state.conversionDirection === 'crypto-to-fiat' ? 'To (Crypto)' : 'To (Fiat)'}
                 direction={state.conversionDirection}
                 sectionType="to"
                 selectedCrypto={selectedCrypto}
@@ -281,7 +278,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-    paddingVertical: Platform.OS === 'ios' ? 16 : 8,
+    paddingTop: 16,
     alignItems: 'center',
   },
   subtitle: {

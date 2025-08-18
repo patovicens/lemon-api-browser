@@ -34,18 +34,15 @@ export const RateLimitProvider: React.FC<RateLimitProviderProps> = ({
 
   const handle429Error = useCallback(() => {
     if (!isRateLimited) {
-      console.log('🚫 429 error detected - CoinGecko API rate limit reached (5-15 calls/minute)');
       setIsRateLimited(true);
       
       setTimeout(() => {
-        console.log('✅ Rate limit reset - safe to make API calls again');
         setIsRateLimited(false);
       }, cooldownMs);
     }
   }, [isRateLimited, cooldownMs]);
 
   const resetRateLimit = useCallback(() => {
-    console.log('🔄 Manual rate limit reset');
     setIsRateLimited(false);
   }, []);
 

@@ -36,25 +36,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkExistingUser = async () => {
     try {
-      console.log('Checking for existing user session...');
       const currentUser = await getCurrentUser();
-      console.log('getCurrentUser result:', currentUser);
       if (currentUser) {
-        console.log('Found existing user, setting authenticated to true');
         setUser(currentUser);
         setIsAuthenticated(true);
       } else {
-        console.log('No existing user found');
       }
     } catch (error) {
-      console.log('No existing user session found');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleLogin = (userData: AuthUser) => {
-    console.log('handleLogin called with userData:', userData);
     setUser(userData);
     setIsAuthenticated(true);
   };

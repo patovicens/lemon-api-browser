@@ -8,5 +8,9 @@
         <item name="android:enforceNavigationBarContrast">false</item>
         <item name="android:enforceStatusBarContrast">false</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@android:color/transparent</item>
+        <item name="android:windowSplashScreenBackground">#2a2a2a</item>
+        <item name="android:windowBackground">#2a2a2a</item>
+        <item name="android:colorBackground">#2a2a2a</item>
     </style>
 </resources>

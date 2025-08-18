@@ -8,7 +8,6 @@ import { CryptoCurrency } from '../../types/crypto';
 import { getFiatDisplayName } from '../../utils/constants';
 
 interface CurrencyInputSectionProps {
-  label: string;
   direction: 'crypto-to-fiat' | 'fiat-to-crypto';
   sectionType: 'from' | 'to';
   selectedCrypto?: CryptoCurrency;
@@ -24,7 +23,6 @@ interface CurrencyInputSectionProps {
 }
 
 const CurrencyInputSection: React.FC<CurrencyInputSectionProps> = ({
-  label,
   direction,
   sectionType,
   selectedCrypto,
@@ -113,8 +111,6 @@ const CurrencyInputSection: React.FC<CurrencyInputSectionProps> = ({
 
   return (
     <View style={styles.currencySection}>
-      <Text style={styles.sectionLabel}>{label}</Text>
-      
       <TouchableOpacity
         style={styles.currencySelector}
         onPress={onCurrencyPress}
@@ -165,14 +161,9 @@ const CurrencyInputSection: React.FC<CurrencyInputSectionProps> = ({
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   currencySection: {
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginVertical: 20,
   },
-  sectionLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.themeText,
-    marginBottom: 10,
-  },
+
   currencySelector: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -247,7 +238,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.themeSurface,
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: Platform.OS === 'ios' ? 12 : 4,
+    paddingVertical: Platform.OS === 'ios' ? 12 : 0,
     borderWidth: 1,
     borderColor: colors.themeBorder,
   },

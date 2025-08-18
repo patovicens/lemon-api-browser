@@ -71,7 +71,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   rateInfo: {
     marginHorizontal: 20,
     marginBottom: 20,
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     backgroundColor: colors.lemonLight,
     borderRadius: 12,
     borderWidth: 1,
@@ -81,7 +82,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   rateLabel: {
     fontSize: 14,

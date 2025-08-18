@@ -12,7 +12,6 @@ export const storeAuthSession = async (user: AuthUser, idToken: string): Promise
     };
     
     await AsyncStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
-    console.log('Auth session stored successfully');
   } catch (error) {
     console.error('Error storing auth session:', error);
     throw new Error('Failed to store authentication session');
@@ -30,7 +29,6 @@ export const getAuthSession = async (): Promise<AuthSession | null> => {
     const session: AuthSession = JSON.parse(sessionData);
     
     if (Date.now() > session.expiresAt) {
-      console.log('Auth session expired, removing...');
       await removeAuthSession();
       return null;
     }
@@ -45,7 +43,6 @@ export const getAuthSession = async (): Promise<AuthSession | null> => {
 export const removeAuthSession = async (): Promise<void> => {
   try {
     await AsyncStorage.removeItem(AUTH_SESSION_KEY);
-    console.log('Auth session removed successfully');
   } catch (error) {
     console.error('Error removing auth session:', error);
     throw new Error('Failed to remove authentication session');

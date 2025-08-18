@@ -17,19 +17,14 @@ export const configureGoogleSignIn = () => {
 
 export const signIn = async (): Promise<AuthUser> => {
   try {
-    console.log('Checking Play Services...');
     await GoogleSignin.hasPlayServices();
-    console.log('Play Services available, attempting sign-in...');
     const userInfo = await GoogleSignin.signIn();
-    console.log('Sign-in result:', userInfo);
     
     // Check if the result indicates cancellation
     if (userInfo && typeof userInfo === 'object' && userInfo.type === 'cancelled') {
-      console.log('User cancelled sign-in (detected from result type)');
       throw new Error('Sign in was cancelled');
     }
     
-    console.log('Sign-in successful, userInfo:', userInfo);
     
     // Handle the nested data structure
     if (userInfo.data && userInfo.data.idToken) {
@@ -74,9 +69,7 @@ export const signOut = async (): Promise<void> => {
   try {
     await GoogleSignin.signOut();
     await removeAuthSession();
-    console.log('Sign out successful');
   } catch (error) {
-    console.error('Sign out error:', error);
     // Still try to remove local session even if Google sign out fails
     await removeAuthSession();
     throw error;
@@ -89,14 +82,12 @@ export const getCurrentUser = async (): Promise<AuthUser | null> => {
     const authUser = await getCurrentAuthUser();
     
     if (authUser) {
-      console.log('Found existing auth user:', authUser);
       return authUser;
     }
     
     // Fallback to Google's getCurrentUser if no stored session
     const currentUser = await GoogleSignin.getCurrentUser();
     if (currentUser && currentUser.idToken) {
-      console.log('Found Google current user, storing session...');
       const googleAuthUser: AuthUser = {
         id: currentUser.user.id,
         name: currentUser.user.name || '',

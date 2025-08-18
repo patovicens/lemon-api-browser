@@ -192,7 +192,6 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
   if (isSimulator) {
     return (
       <SafeAreaView style={styles.container}>
-        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity 
             onPress={handleBackToHome} 
@@ -202,7 +201,6 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
           </TouchableOpacity>
         </View>
 
-        {/* Simulator Message */}
         <View style={styles.simulatorContainer}>
           <View style={styles.simulatorIcon}>
             <FontAwesomeIcon icon={faMobileAlt} size={80} color={colors.themeText} />
@@ -245,7 +243,6 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Minimal Header */}
       <View style={styles.header}>
         <TouchableOpacity 
           onPress={handleBackToHome} 
@@ -272,7 +269,6 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
             scanBarcode={true}
             showFrame={false}
             onReadCode={(event) => {
-              console.log('QR code read:', event.nativeEvent);
               // Prevent multiple rapid scans
               if (isProcessing) return;
               
@@ -292,10 +288,8 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
                 rawContent: content,
               };
 
-              // Call the callback and navigate away
               if (_onScanResult) {
                 _onScanResult(walletResult);
-                // Reset processing state after a short delay
                 setTimeout(() => {
                   setIsProcessing(false);
                 }, 500);
@@ -346,8 +340,6 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
           </View>
         </View>
       </View>
-
-      {/* Removed camera controls as they're not needed */}
     </SafeAreaView>
   );
 };
@@ -442,8 +434,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     right: HORIZONTAL_OFFSET,
     transform: [{ rotate: '180deg' }],
   },
-
-
   permissionContainer: {
     flex: 1,
     justifyContent: 'center',
