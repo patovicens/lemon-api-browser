@@ -280,7 +280,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexDirection: 'column',
     paddingHorizontal: 16,
     paddingTop: Platform.OS === 'android' ? 20 : 8,
-    paddingBottom: 8,
+    paddingBottom: 12,
     backgroundColor: colors.themeSurface,
     borderBottomWidth: 1,
     borderBottomColor: colors.themeBorder,
@@ -337,9 +337,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   searchContainer: {
     width: '100%',
-    backgroundColor: colors.themeSurface,
     paddingHorizontal: 0,
-    paddingVertical: 6,
+    paddingVertical: 0,
+    marginTop: 8,
   },
   searchContent: {
     width: '100%',

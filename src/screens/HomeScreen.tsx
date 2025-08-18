@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import HomeListItem from '../components/home/HomeListItem';
 import { CryptoCurrency } from '../types/crypto';
 import LoadingScreen from '../components/common/LoadingScreen';
@@ -133,7 +134,7 @@ const HomeScreen: React.FC = () => {
 
   const renderErrorState = () => (
     <ErrorState
-      error={error}
+      error={error as Error | null}
       onRetry={() => refetch()}
     />
   );
@@ -144,66 +145,68 @@ const HomeScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']} >
-      <View style={styles.contentContainer}>
-        <HomeHeader 
-          isFetching={isFetching}
-          isRefreshing={refreshing}
-          onRefresh={handleRefresh}
-          onSearch={setSearchQuery}
-          onSearchSubmit={(query) => {
-            setQuery(query);
-          }}
-          onToggleFilters={() => {
-            const newVisibility = !isFiltersVisible;
-            setIsFiltersVisible(newVisibility);
-            if (newVisibility) {
-              setShouldRenderFilters(true);
-            }
-          }}
-          isFiltersVisible={isFiltersVisible}
-        />
-
-        {shouldRenderFilters && (
-          <FilterSortBar
-            currentSort={currentSort}
-            currentFilters={currentFilters}
-            onSortChange={setSort}
-            onFilterChange={setFilters}
-            isVisible={isFiltersVisible}
-            onAnimationComplete={() => {
-              if (!isFiltersVisible) {
-                setShouldRenderFilters(false);
+      <BottomSheetModalProvider>
+        <View style={styles.contentContainer}>
+          <HomeHeader 
+            isFetching={isFetching}
+            isRefreshing={refreshing}
+            onRefresh={handleRefresh}
+            onSearch={setSearchQuery}
+            onSearchSubmit={(query) => {
+              setQuery(query);
+            }}
+            onToggleFilters={() => {
+              const newVisibility = !isFiltersVisible;
+              setIsFiltersVisible(newVisibility);
+              if (newVisibility) {
+                setShouldRenderFilters(true);
               }
             }}
+            isFiltersVisible={isFiltersVisible}
           />
-        )}
 
-        {error && !isRateLimited ? (renderErrorState()
-        ) : (
-          <FlashList
-            key={`list-${currentSort?.key || 'none'}-${currentSort?.direction || 'none'}-${listKey}`}
-            data={displayList}
-            renderItem={renderCryptoItem}
-            keyExtractor={keyExtractor}
-            refreshControl={
-              !debouncedQuery.trim() ? (
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={handleRefresh}
-                  colors={[colors.lemon]}
-                  tintColor={colors.lemon}
-                />
-              ) : undefined
-            }
-            onEndReached={handleLoadMore}
-            onEndReachedThreshold={0}
-            ListEmptyComponent={renderEmptyState}
-            ListFooterComponent={renderEndMessage}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContainer}
-          />
-        )}
-      </View>
+          {shouldRenderFilters && (
+            <FilterSortBar
+              currentSort={currentSort}
+              currentFilters={currentFilters}
+              onSortChange={setSort}
+              onFilterChange={setFilters}
+              isVisible={isFiltersVisible}
+              onAnimationComplete={() => {
+                if (!isFiltersVisible) {
+                  setShouldRenderFilters(false);
+                }
+              }}
+            />
+          )}
+
+          {error && !isRateLimited ? (renderErrorState()
+          ) : (
+            <FlashList
+              key={`list-${currentSort?.key || 'none'}-${currentSort?.direction || 'none'}-${listKey}`}
+              data={displayList}
+              renderItem={renderCryptoItem}
+              keyExtractor={keyExtractor}
+              refreshControl={
+                !debouncedQuery.trim() ? (
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}
+                    colors={[colors.lemon]}
+                    tintColor={colors.lemon}
+                  />
+                ) : undefined
+              }
+              onEndReached={handleLoadMore}
+              onEndReachedThreshold={0}
+              ListEmptyComponent={renderEmptyState}
+              ListFooterComponent={renderEndMessage}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.listContainer}
+            />
+          )}
+        </View>
+      </BottomSheetModalProvider>
     </SafeAreaView>
   );
 };

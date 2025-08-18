@@ -27,7 +27,6 @@ import ErrorState from '../components/common/ErrorState';
 import LoadingScreen from '../components/common/LoadingScreen';
 import { ThemeColors } from '../theme';
 
-// TODO: Add proper toast message to manual refresh
 const ExchangeScreen: React.FC = () => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
