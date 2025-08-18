@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -24,7 +24,7 @@ interface HomeHeaderProps {
   isFiltersVisible?: boolean;
 }
 
-const HomeHeader: React.FC<HomeHeaderProps> = ({ 
+const HomeHeader: React.FC<HomeHeaderProps> = ({
   isFetching = false, 
   isRefreshing = false, 
   onRefresh,
@@ -40,10 +40,50 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const searchAnimation = useRef(new Animated.Value(0)).current;
   const iconRotation = useRef(new Animated.Value(0)).current;
+  const refreshIconRotation = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
+  const [isRotating, setIsRotating] = useState(false);
+
+  useEffect(() => {
+    if (isFetching && !isRefreshing) {
+      const startRotation = () => {
+        setIsRotating(true);
+        refreshIconRotation.setValue(0);
+        Animated.loop(
+          Animated.timing(refreshIconRotation, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          })
+        ).start();
+      };
+      startRotation();
+    } else if (isRotating) {
+      // Complete the current rotation if it's in progress
+      setIsRotating(false);
+      Animated.timing(refreshIconRotation, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start(() => {
+        refreshIconRotation.setValue(0);
+      });
+    }
+  }, [isFetching, isRefreshing, refreshIconRotation, isRotating]);
 
   const handleRefresh = () => {
-    if (onRefresh) {
+    if (onRefresh && !isRotating) {
+      setIsRotating(true);
+      refreshIconRotation.setValue(0);
+      Animated.timing(refreshIconRotation, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start(() => {
+        refreshIconRotation.setValue(0);
+        setIsRotating(false);
+      });
+      
       onRefresh();
     }
   };
@@ -124,19 +164,25 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
         </View>
         
         <View style={styles.headerRight}>
-          {isFetching && !isRefreshing && (
-            <Text style={styles.updatingText}>Updating...</Text>
-          )}
           <TouchableOpacity 
             onPress={handleRefresh} 
             style={styles.iconButton}
-            disabled={isRefreshing || isFetching}
+            disabled={isRefreshing || isFetching || isRotating}
           >
-            <FontAwesomeIcon 
-              icon={faRotate} 
-              size={18} 
-              color={isRefreshing || isFetching ? colors.themeTextTertiary : colors.themeTextSecondary} 
-            />
+            <Animated.View style={{
+              transform: [{
+                rotate: refreshIconRotation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ['0deg', '360deg'],
+                })
+              }]
+            }}>
+              <FontAwesomeIcon 
+                icon={faRotate} 
+                size={18} 
+                color={isRefreshing || isFetching ? colors.themeTextTertiary : colors.themeTextSecondary} 
+              />
+            </Animated.View>
           </TouchableOpacity>
           
 
@@ -288,11 +334,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   iconButtonActive: {
     backgroundColor: colors.lemonLight,
-  },
-  updatingText: {
-    fontSize: 14,
-    color: colors.themeTextSecondary,
-    fontStyle: 'italic',
   },
   searchContainer: {
     width: '100%',

@@ -6,30 +6,34 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faHeart, faHeartBroken, faSave, faCopy, faArrowLeft, faClock } from '@fortawesome/free-solid-svg-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { CompositeNavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useScanner } from '../../contexts/ScannerContext';
 import { WalletScanResult } from '../../types/crypto';
-import { formatWalletAddress, getWalletTypeDisplayName } from '../../utils/walletUtils';
+import { getWalletTypeDisplayName } from '../../utils/walletUtils';
 import { ThemeColors } from '../../theme';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { ScannerStackParamList, MainTabParamList } from '../../navigation/types';
 
-type ScannerStackParamList = {
-  ScannerMain: undefined;
-  ScanResult: { scanResult: WalletScanResult };
-  ScanHistory: undefined;
-};
+type ScanResultNavigationProp = CompositeNavigationProp<
+  StackNavigationProp<ScannerStackParamList>,
+  BottomTabNavigationProp<MainTabParamList>
+>;
 
 type ScanResultRouteProp = RouteProp<ScannerStackParamList, 'ScanResult'>;
 
 const ScanResultSummary: React.FC = () => {
   const { colors } = useTheme();
   const { addScannedWallet } = useScanner();
-  const navigation = useNavigation();
+  const navigation = useNavigation<ScanResultNavigationProp>();
   const route = useRoute<ScanResultRouteProp>();
   const { scanResult } = route.params;
   
@@ -76,7 +80,7 @@ const ScanResultSummary: React.FC = () => {
   };
 
   const handleScanAgain = () => {
-    confirmDiscard(() => navigation.navigate('ScannerMain' as never));
+    confirmDiscard(() => navigation.navigate('ScannerMain'));
   };
 
   return (
@@ -87,7 +91,7 @@ const ScanResultSummary: React.FC = () => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Scan Result</Text>
         <TouchableOpacity 
-          onPress={() => navigation.navigate('ScanHistory' as never)} //TODO: remove this as never
+          onPress={() => navigation.navigate('ScanHistory')}
           style={[styles.historyButton, { borderColor: colors.themeBorder }]}
         >
           <FontAwesomeIcon icon={faClock} size={20} color={colors.themeText} />
@@ -108,7 +112,7 @@ const ScanResultSummary: React.FC = () => {
               <Text style={styles.addressText}>{scanResult.rawContent || scanResult.address}</Text>
               
               <TouchableOpacity onPress={handleCopyAddress} style={styles.copyButton}>
-                <FontAwesomeIcon icon={faCopy} size={16} color={colors.themeTextSecondary} />
+                <FontAwesomeIcon icon={faCopy} size={16} color={colors.lemon} />
                 <Text style={styles.copyButtonText}>Copy Content</Text>
               </TouchableOpacity>
 
@@ -119,10 +123,10 @@ const ScanResultSummary: React.FC = () => {
           ) : (
             <>
               <Text style={styles.addressLabel}>Wallet Address:</Text>
-              <Text style={styles.addressText}>{formatWalletAddress(scanResult.address)}</Text>
+              <Text style={styles.addressText}>{scanResult.address}</Text>
               
               <TouchableOpacity onPress={handleCopyAddress} style={styles.copyButton}>
-                <FontAwesomeIcon icon={faCopy} size={16} color={colors.themeTextSecondary} />
+                <FontAwesomeIcon icon={faCopy} size={16} color={colors.lemon} />
                 <Text style={styles.copyButtonText}>Copy Address</Text>
               </TouchableOpacity>
             </>
@@ -183,9 +187,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingTop: Platform.OS === 'android' ? 12 : 0,
+    paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.themeBorder,
   },
   backButton: {
     padding: 10,
@@ -203,6 +208,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
+    borderColor: colors.themeBorder,
   },
   content: {
     flex: 1,
@@ -247,12 +253,18 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
+    paddingHorizontal: 16,
     marginBottom: 20,
+    backgroundColor: colors.themeSurfaceLight,
+    borderWidth: 1,
+    borderColor: colors.lemon,
+    borderRadius: 8,
   },
   copyButtonText: {
     marginLeft: 8,
     fontSize: 14,
-    color: colors.themeTextSecondary,
+    color: colors.lemon,
+    fontWeight: '500',
   },
   unknownNote: {
     fontSize: 14,
@@ -274,7 +286,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   notesInput: {
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.themeBorder,
     borderRadius: 8,
     padding: 12,
     fontSize: 14,
@@ -293,7 +305,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.themeBorder,
     borderRadius: 22,
     backgroundColor: colors.themeSurfaceLight,
   },
@@ -320,7 +332,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.themeBorder,
     borderRadius: 8,
     backgroundColor: colors.themeSurface,
   },

@@ -44,9 +44,16 @@ A React Native cryptocurrency trading and management application with a modern, 
    ```
 
 4. **Environment Configuration**
-   - Copy `.env.example` to `.env` (if available)
-   - Configure your CoinGecko API key
-   - Set up Google OAuth credentials
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env
+   
+   # Edit .env and add your CoinGecko API key
+   # Get a free API key from: https://www.coingecko.com/en/api
+   COINGECKO_API_KEY=your_actual_api_key_here
+   ```
+   
+   **Note**: The `.env` file contains sensitive information and is automatically ignored by git. Never commit your actual API keys.
 
 5. **Run the application**
    ```bash
@@ -66,6 +73,8 @@ A React Native cryptocurrency trading and management application with a modern, 
 | `react-native` | 0.81.0 | Core React Native framework |
 | `react` | 19.1.0 | React library |
 | `typescript` | 5.8.3 | Type safety and development experience |
+| `@react-native/new-app-screen` | 0.81.0 | Default React Native app screen |
+| `react-native-dotenv` | ^3.4.9 | Environment variable management |
 
 ### Navigation & UI
 
@@ -83,6 +92,7 @@ A React Native cryptocurrency trading and management application with a modern, 
 |---------|---------|---------|
 | `@tanstack/react-query` | 5.85.0 | Server state management |
 | `@react-native-async-storage/async-storage` | 2.2.0 | Local data persistence |
+| `@react-native-clipboard/clipboard` | ^1.16.3 | Clipboard functionality |
 
 ### Authentication & Security
 
@@ -94,10 +104,13 @@ A React Native cryptocurrency trading and management application with a modern, 
 
 | Library | Version | Purpose |
 |---------|---------|---------|
-| `@fortawesome/react-native-fontawesome` | 0.3.2 | Icon library |
+| `@fortawesome/fontawesome-svg-core` | ^7.0.0 | FontAwesome core library |
+| `@fortawesome/free-solid-svg-icons` | ^7.0.0 | FontAwesome solid icons |
+| `@fortawesome/react-native-fontawesome` | 0.3.2 | FontAwesome React Native component |
 | `react-native-reanimated` | 4.0.2 | Smooth animations |
 | `react-native-gesture-handler` | 2.28.0 | Gesture handling |
 | `@gorhom/bottom-sheet` | 5.x | Bottom sheet modals |
+| `react-native-svg` | 15.12.1 | SVG support for React Native |
 
 ### Camera & Scanning
 
@@ -111,6 +124,7 @@ A React Native cryptocurrency trading and management application with a modern, 
 | Library | Version | Purpose |
 |---------|---------|---------|
 | `@shopify/flash-list` | 2.0.2 | High-performance list rendering |
+| `react-native-worklets` | 0.4.1 | Background processing and worklets |
 
 ## ⚠️ Caveats & Important Notes
 
@@ -134,6 +148,7 @@ A React Native cryptocurrency trading and management application with a modern, 
 - **CoinGecko API**: Free tier has rate limits (50 calls/minute)
 - **Rate Limiting**: App includes rate limit handling and user feedback
 - **API Key**: Demo API key included, but production should use registered key
+- **Environment Setup**: API configuration is managed via `.env` file (see Setup Instructions)
 
 ### Performance Considerations
 

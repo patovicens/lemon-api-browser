@@ -35,11 +35,18 @@ target 'LemonChallenge' do
 
   post_install do |installer|
     # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
-    react_native_post_install(
-      installer,
-      config[:reactNativePath],
-      :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
-    )
+    begin
+      react_native_post_install(
+        installer,
+        config[:reactNativePath],
+        :mac_catalyst_enabled => false,
+        # :ccache_enabled => true
+      )
+    rescue => e
+      # Fallback if react_native_post_install fails due to encoding issues
+      puts "Warning: react_native_post_install failed: #{e.message}"
+      puts "Continuing with pod installation..."
+      # Don't override build settings - let the default ones work
+    end
   end
 end

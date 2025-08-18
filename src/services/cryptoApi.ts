@@ -1,9 +1,6 @@
 import { CryptoCurrency, CryptoListParams } from '../types/crypto';
 import { FIAT_CURRENCY_NAMES } from '../utils/constants';
-
-// TODO: move to .env
-const COINGECKO_BASE_URL = 'https://api.coingecko.com/api/v3';
-const COINGECKO_API_KEY = 'CG-SGfJJPkMJBneFhqP3miR77US';
+import { COINGECKO_BASE_URL, COINGECKO_API_KEY } from '@env';
 
 import { SearchCoin, SearchResponse, createCryptoApiError } from '../types/crypto';
 

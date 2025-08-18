@@ -3,8 +3,8 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Platform,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BottomSheetModal, BottomSheetModalProvider, BottomSheetBackdrop, BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
@@ -14,18 +14,18 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useTheme } from '../contexts/ThemeContext';
 import { useExchange } from '../contexts/ExchangeContext';
-import { ThemeColors } from '../theme';
-import CurrencySelector from '../components/exchange/CurrencySelector';
-import LoadingScreen from '../components/common/LoadingScreen';
-import ErrorState from '../components/common/ErrorState';
-import ConversionDirectionToggle from '../components/exchange/ConversionDirectionToggle';
 import CurrencyInputSection from '../components/exchange/CurrencyInputSection';
+import CurrencySelector from '../components/exchange/CurrencySelector';
+import ConversionDirectionToggle from '../components/exchange/ConversionDirectionToggle';
 import SwapButton from '../components/exchange/SwapButton';
 import ExchangeRateInfo from '../components/exchange/ExchangeRateInfo';
 import ConversionErrorInfo from '../components/exchange/ConversionErrorInfo';
 import { formatNumber } from '../utils/formatting';
 import { useFocusEffect } from '@react-navigation/native';
 import { useExchangeAnimations } from '../hooks/useExchangeAnimations';
+import ErrorState from '../components/common/ErrorState';
+import LoadingScreen from '../components/common/LoadingScreen';
+import { ThemeColors } from '../theme';
 
 // TODO: Add proper toast message to manual refresh
 const ExchangeScreen: React.FC = () => {
@@ -211,7 +211,7 @@ const ExchangeScreen: React.FC = () => {
 
             <Animated.View style={animatedToSectionStyle}>
               <CurrencyInputSection
-                label={state.conversionDirection === 'crypto-to-fiat' ? 'To (Fiat)' : 'To (Crypto)'}
+                label={state.conversionDirection === 'crypto-to-fiat' ? 'To (Crypto)' : 'To (Fiat)'}
                 direction={state.conversionDirection}
                 sectionType="to"
                 selectedCrypto={selectedCrypto}
@@ -228,13 +228,13 @@ const ExchangeScreen: React.FC = () => {
 
           {(exchangeRate || state.fromCurrency || state.toCurrency) && !rateError && (
             <ExchangeRateInfo
-              exchangeRate={exchangeRate}
+              exchangeRate={exchangeRate || undefined}
               fromCurrencySymbol={state.conversionDirection === 'crypto-to-fiat' ? 
                 selectedCrypto?.symbol?.toUpperCase() || 'CRYPTO' : selectedFiat}
               toCurrencySymbol={state.conversionDirection === 'crypto-to-fiat' ? 
                 selectedFiat : selectedCrypto?.symbol?.toUpperCase() || 'CRYPTO'}
               conversionDirection={state.conversionDirection}
-              lastFetchTime={lastFetchTime}
+              lastFetchTime={lastFetchTime || undefined}
               currentTime={currentTime}
               onRefresh={retry}
               isRefreshing={loadingStates.refreshing}
@@ -242,7 +242,7 @@ const ExchangeScreen: React.FC = () => {
           )}
 
           <ConversionErrorInfo 
-            error={rateError}
+            error={rateError || undefined}
             conversionError={state.conversionError}
           />
         </ScrollView>

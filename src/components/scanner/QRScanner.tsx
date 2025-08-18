@@ -23,15 +23,24 @@ import { detectWalletType } from '../../utils/walletUtils';
 
 import { QRScannerProps } from '../../types/scanner';
 
+import { useNavigation } from '@react-navigation/native';
+import { CompositeNavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { ScannerStackParamList, MainTabParamList } from '../../navigation/types';
+
+type QRScannerNavigationProp = CompositeNavigationProp<
+  StackNavigationProp<ScannerStackParamList>,
+  BottomTabNavigationProp<MainTabParamList>
+>;
+
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const FRAME_SIZE = SCREEN_WIDTH * 0.7; // 70% of screen width
+const FRAME_SIZE = SCREEN_WIDTH * 0.7;
 const HORIZONTAL_OFFSET = (SCREEN_WIDTH - FRAME_SIZE) / 2;
 const VERTICAL_OFFSET = (SCREEN_HEIGHT - FRAME_SIZE) / 2;
 
-import { useNavigation } from '@react-navigation/native';
-
 const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onShowHistory }) => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<QRScannerNavigationProp>();
   const { colors } = useTheme();
   const [isProcessing, setIsProcessing] = useState(false);
   
@@ -69,14 +78,21 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
     }
   };
 
+
   const openSettings = () => {
     if (Platform.OS === 'ios') {
       Linking.openURL('app-settings:');
+    } else if (Platform.OS === 'android') {
+      Linking.openSettings();
     }
   };
 
+  const handleBackToHome = () => {
+    navigation.navigate('Home');
+  };
+
   const checkCameraAvailability = () => {
-    // Check if camera is available on the device
+
     if (Platform.OS === 'ios') {
       // iOS doesn't have a direct way to check camera availability
       // but we can check if we're on a device that should have a camera
@@ -160,6 +176,14 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
               Grant Permission
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={openSettings}
+            style={[styles.permissionButton, styles.settingsButton]}
+          >
+            <Text style={styles.settingsButtonText}>
+              Open Settings
+            </Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
@@ -171,7 +195,7 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity 
-            onPress={() => navigation.goBack()} 
+            onPress={handleBackToHome} 
             style={[styles.closeButton, { borderColor: colors.themeBorder }]}
           >
             <FontAwesomeIcon icon={faXmark} size={24} color={colors.themeText} />
@@ -224,7 +248,7 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScanResult: _onScanResult, onSh
       {/* Minimal Header */}
       <View style={styles.header}>
         <TouchableOpacity 
-          onPress={() => navigation.navigate('Home' as never)} // TODO: fix this
+          onPress={handleBackToHome} 
           style={[styles.closeButton, { borderColor: colors.themeBorder }]}
         >
           <FontAwesomeIcon icon={faXmark} size={24} color={colors.themeText} />
@@ -542,6 +566,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     color: colors.themeTextSecondary,
     textAlign: 'center',
     marginTop: 5,
+  },
+  settingsButton: {
+    backgroundColor: colors.themeSurface,
+    borderWidth: 1,
+    borderColor: colors.themeBorder,
+    marginTop: 10,
+  },
+  settingsButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.themeText,
   },
 });
 

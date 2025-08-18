@@ -13,7 +13,7 @@ export type ThemeColors = typeof colors & {
   themeBorderLight: string;
 };
 
-// TODO: add more theme exports here later
+// TODO: add more theme exports here later if necessary
 // export { spacing } from './spacing';
 // export { typography } from './typography';
 // export { shadows } from './shadows';

@@ -177,9 +177,10 @@ const ScanHistory: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-          <FontAwesomeIcon icon={faArrowLeft} size={16} color={colors.themeText} />
+          <FontAwesomeIcon icon={faArrowLeft} size={20} color={colors.themeText} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Scan History</Text>
+        <View style={styles.placeholderHeader} />
       </View>
 
       <View style={styles.filterContainer}>
@@ -243,31 +244,29 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
     paddingTop: Platform.OS === 'android' ? 12 : 0,
     paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.themeBorder,
-    position: 'relative',
   },
   backButton: {
-    position: 'absolute',
-    left: 10,
     padding: 10,
-    zIndex: 1,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: colors.themeText,
   },
+  placeholderHeader: {
+    width: 40,
+    height: 40,
+  },
   filterTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.themeText,
-  },
-  placeholder: {
-    width: 60,
   },
   filterContainer: {
     paddingHorizontal: 20,

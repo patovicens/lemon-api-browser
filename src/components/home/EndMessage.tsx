@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Linking } from 'react-native';
 import { ThemeColors } from '../../theme';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -35,8 +35,7 @@ const EndMessage: React.FC<EndMessageProps> = ({
             Due to CoinGecko API restrictions, we can only filter through the top 250 cryptocurrencies. 
             For a complete list with advanced filtering options, visit{' '}
             <Text style={styles.linkText} onPress={() => {
-              // TODO: Open CoinGecko website in browser
-              console.log('Open CoinGecko website');
+              Linking.openURL('https://coingecko.com');
             }}>
               coingecko.com
             </Text>

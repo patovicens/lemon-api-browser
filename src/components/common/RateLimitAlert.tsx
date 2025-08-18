@@ -1,10 +1,23 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { colors } from '../../theme';
 
 import { RateLimitAlertProps } from '../../types/common';
 
 const RateLimitAlert: React.FC<RateLimitAlertProps> = ({ onRetry }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleRetry = async () => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    try {
+      await onRetry();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.rateLimitContainer}>
@@ -12,9 +25,16 @@ const RateLimitAlert: React.FC<RateLimitAlertProps> = ({ onRetry }) => {
         <Text style={styles.rateLimitMessage}>
           CoinGecko API rate limit reached (5-15 calls/minute). Please wait a few seconds and pull to refresh.
         </Text>
-        <TouchableOpacity style={styles.retryButton} onPress={onRetry}>
-          {/* TODO: Add loading state make sure its not limited again */}
-          <Text style={styles.retryButtonText}>Try Again</Text>
+        <TouchableOpacity 
+          style={[styles.retryButton, isLoading && styles.retryButtonDisabled]} 
+          onPress={handleRetry}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator size="small" color={colors.errorLight} />
+          ) : (
+            <Text style={styles.retryButtonText}>Try Again</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -54,6 +74,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
+  },
+  retryButtonDisabled: {
+    opacity: 0.7,
   },
   retryButtonText: {
     color: colors.errorLight,
