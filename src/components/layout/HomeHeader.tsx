@@ -145,7 +145,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           >
             <View style={styles.profileButtonContent}>
               <FontAwesomeIcon icon={faUserCircle} size={20} color={colors.darkBackground} />
-              <Text style={styles.profileButtonText}>
+              <Text style={styles.profileButtonText} numberOfLines={1}>
                 {user?.email ? `@${user.email.split('@')[0]}` : '@User'}
               </Text>
             </View>
@@ -322,6 +322,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.darkBackground,
+    maxWidth: 120,
+    flexShrink: 1,
   },
   headerRight: {
     flexDirection: 'row',
