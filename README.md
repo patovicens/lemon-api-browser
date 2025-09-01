@@ -1,4 +1,4 @@
-# 🍋 LemonChallenge
+# 🍋 Lemon API-Browser
 
 A React Native cryptocurrency trading and management application with a modern, lemon-themed design. Built with TypeScript and featuring real-time crypto data, QR code scanning, and Google authentication.
 
@@ -47,7 +47,7 @@ These variables are typically set up during Android Studio installation. They're
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd lemon-challenge
+   cd lemon-api-browser
    ```
 
 2. **Install dependencies**
